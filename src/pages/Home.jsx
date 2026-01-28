@@ -37,7 +37,7 @@ export default function Home() {
               properties: {
                 platform: { type: "string" },
                 price_range: { type: "string" },
-                url_hint: { type: "string" }
+                url: { type: "string" }
               }
             }
           },
@@ -49,7 +49,8 @@ export default function Home() {
                 platform: { type: "string" },
                 expected_price: { type: "string" },
                 fees: { type: "string" },
-                time_to_sell: { type: "string" }
+                time_to_sell: { type: "string" },
+                url: { type: "string" }
               }
             }
           }
@@ -70,10 +71,10 @@ export default function Home() {
       2. NEW retail prices (price range)
       3. SECONDHAND/USED prices from marketplaces like eBay, Facebook Marketplace, Craigslist
       4. AUCTION prices from eBay auctions, estate sales
-      5. Best platforms to BUY this item (with current price ranges)
-      6. Best platforms to SELL this item (with expected prices, fees, and typical time to sell)
+      5. Best platforms to BUY this item (with current price ranges and direct URLs to search/product pages)
+      6. Best platforms to SELL this item (with expected prices, fees, typical time to sell, and URLs to their selling pages)
       
-      Search for real, current prices. Be specific with price ranges in USD.`,
+      Search for real, current prices. Be specific with price ranges in USD. Include actual working URLs to each platform's relevant page.`,
       file_url
     );
 
@@ -96,10 +97,10 @@ export default function Home() {
       2. NEW retail prices (price range from major retailers)
       3. SECONDHAND/USED prices from marketplaces like eBay, Facebook Marketplace, Craigslist, Mercari
       4. AUCTION prices from eBay auctions, estate sales, auction houses
-      5. Best platforms to BUY this item (with current price ranges)
-      6. Best platforms to SELL this item (with expected prices, seller fees, and typical time to sell)
+      5. Best platforms to BUY this item (with current price ranges and direct URLs to search/product pages)
+      6. Best platforms to SELL this item (with expected prices, seller fees, typical time to sell, and URLs to their selling pages)
       
-      Search for real, current market prices. Be specific with price ranges in USD.`
+      Search for real, current market prices. Be specific with price ranges in USD. Include actual working URLs to each platform's relevant page.`
     );
 
     const finalResult = {

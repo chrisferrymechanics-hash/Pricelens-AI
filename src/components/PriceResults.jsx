@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
+import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
 
@@ -36,24 +36,34 @@ function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 })
 
 function RecommendationItem({ rec, type, index }) {
   const isBuy = type === 'buy';
+  const Wrapper = rec.url ? 'a' : 'div';
+  const wrapperProps = rec.url ? { href: rec.url, target: '_blank', rel: 'noopener noreferrer' } : {};
+  
   return (
     <motion.div
       initial={{ opacity: 0, x: -10 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.1 * index }}
-      className="flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50"
     >
-      <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${
-        isBuy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'
-      }`}>
-        {rec.platform?.charAt(0)}
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="font-medium text-white truncate">{rec.platform}</div>
-        <div className="text-sm text-slate-400">
-          {isBuy ? rec.price_range : `${rec.expected_price} • ${rec.fees || 'Low fees'}`}
+      <Wrapper
+        {...wrapperProps}
+        className={`flex items-center gap-3 p-3 rounded-xl bg-slate-800/50 border border-slate-700/50 ${rec.url ? 'hover:border-slate-600 hover:bg-slate-800 cursor-pointer transition-all' : ''}`}
+      >
+        <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${
+          isBuy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-blue-500/10 text-blue-400'
+        }`}>
+          {rec.platform?.charAt(0)}
         </div>
-      </div>
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-white truncate flex items-center gap-2">
+            {rec.platform}
+            {rec.url && <ExternalLink className="w-3 h-3 text-slate-500" />}
+          </div>
+          <div className="text-sm text-slate-400">
+            {isBuy ? rec.price_range : `${rec.expected_price} • ${rec.fees || 'Low fees'}`}
+          </div>
+        </div>
+      </Wrapper>
     </motion.div>
   );
 }
