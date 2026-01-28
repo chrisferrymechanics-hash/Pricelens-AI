@@ -135,7 +135,7 @@ export default function Home() {
 
         {/* Main Content */}
         {result ? (
-          <PriceResults result={result} onBack={handleBack} />
+          <PriceResults result={result} onBack={handleBack} onSearchSimilar={handleKeywordSearch} />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full bg-slate-800/50 border border-slate-700 rounded-xl p-1 mb-6">

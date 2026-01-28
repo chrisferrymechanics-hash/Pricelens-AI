@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import SimilarItems from './SimilarItems';
 
 function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 }) {
   const avgPrice = (lowPrice + highPrice) / 2;
@@ -57,8 +58,14 @@ function RecommendationItem({ rec, type, index }) {
   );
 }
 
-export default function PriceResults({ result, onBack }) {
+export default function PriceResults({ result, onBack, onSearchSimilar }) {
   if (!result) return null;
+
+  const handleSelectSimilarItem = (item) => {
+    if (onSearchSimilar) {
+      onSearchSimilar(item.name);
+    }
+  };
 
   return (
     <motion.div
@@ -149,6 +156,13 @@ export default function PriceResults({ result, onBack }) {
           </div>
         </div>
       )}
+
+      {/* Similar Items Comparison */}
+      <SimilarItems 
+        itemName={result.item_name} 
+        category={result.category}
+        onSelectItem={handleSelectSimilarItem}
+      />
     </motion.div>
   );
 }
