@@ -29,6 +29,10 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
+    // Fetch the price to determine if it's recurring
+    const price = await stripe.prices.retrieve(priceId);
+    const isRecurring = price.type === 'recurring';
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
@@ -37,7 +41,7 @@ Deno.serve(async (req) => {
           quantity: 1,
         },
       ],
-      mode: priceId.includes('month') ? 'subscription' : 'payment',
+      mode: isRecurring ? 'subscription' : 'payment',
       success_url: `${req.headers.get('origin') || 'https://your-app.com'}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: req.headers.get('origin') || 'https://your-app.com',
       customer_email: user.email,
