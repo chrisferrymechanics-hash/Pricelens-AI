@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Camera, Search, Sparkles } from 'lucide-react';
+import { Camera, Search, Sparkles, Gem, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import CameraCapture from '@/components/CameraCapture';
 import KeywordSearch from '@/components/KeywordSearch';
 import PriceResults from '@/components/PriceResults';
+import CollectiblesCapture from '@/components/CollectiblesCapture';
+import CollectiblesResults from '@/components/CollectiblesResults';
 
 export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
+  const [collectibleResult, setCollectibleResult] = useState(null);
   const [activeTab, setActiveTab] = useState('camera');
   const [userLocation, setUserLocation] = useState(null);
 
@@ -169,6 +174,110 @@ export default function Home() {
 
   const handleBack = () => {
     setResult(null);
+    setCollectibleResult(null);
+  };
+
+  const handleCollectiblesCapture = async (frontFile, backFile) => {
+    setIsProcessing(true);
+    
+    const { file_url: frontUrl } = await base44.integrations.Core.UploadFile({ file: frontFile });
+    let backUrl = null;
+    if (backFile) {
+      const { file_url } = await base44.integrations.Core.UploadFile({ file: backFile });
+      backUrl = file_url;
+    }
+    
+    const fileUrls = backUrl ? [frontUrl, backUrl] : [frontUrl];
+    
+    const response = await base44.integrations.Core.InvokeLLM({
+      prompt: `You are an expert collectibles appraiser. Analyze ${backUrl ? 'both the FRONT and BACK images' : 'this image'} of a collectible item.
+
+IDENTIFY THE TYPE: Determine if this is a coin, stamp, comic book, trading card, antique, memorabilia, or other collectible.
+
+DETAILED IDENTIFICATION:
+- Exact name/title of the item
+- Year/date of issue or manufacture
+- Mint/publisher/manufacturer
+- Edition, series, or variant
+- Any special markings, errors, or distinguishing features
+
+RARITY ASSESSMENT:
+- Rarity level (common, uncommon, rare, very_rare, extremely_rare, legendary)
+- Rarity score (1-10)
+- Key identifiers that affect rarity (mint marks, errors, limited editions, first prints, etc.)
+
+AUTHENTICITY CHECK:
+- Confidence level (0-100%) that this is authentic
+- Notes on authenticity indicators observed
+- Any red flags or concerns
+
+CONDITION & GRADING:
+- Overall condition estimate
+- Grading recommendation (should it be professionally graded? which service?)
+
+VALUE ESTIMATION:
+- Estimated value range (ungraded)
+- Estimated value range (if professionally graded)
+
+TRADING PLATFORMS (TOP 5):
+- Recommend the best specialized platforms for buying/selling this type of collectible
+- Include auction houses, specialized dealers, and online marketplaces
+- Prioritize platforms specific to this collectible type (e.g., PCGS for coins, PSA for cards)
+- Include URLs and typical price ranges
+- Mark specialized platforms with is_specialized: true
+
+Search the internet for current market data. Be specific with USD prices.`,
+      add_context_from_internet: true,
+      file_urls: fileUrls,
+      response_json_schema: {
+        type: "object",
+        properties: {
+          item_name: { type: "string" },
+          item_description: { type: "string" },
+          collectible_type: { type: "string", enum: ["coin", "stamp", "comic", "trading_card", "antique", "memorabilia", "other"] },
+          rarity: { type: "string", enum: ["common", "uncommon", "rare", "very_rare", "extremely_rare", "legendary"] },
+          rarity_score: { type: "number", minimum: 1, maximum: 10 },
+          key_identifiers: { type: "array", items: { type: "string" } },
+          authenticity: {
+            type: "object",
+            properties: {
+              confidence: { type: "number", minimum: 0, maximum: 100 },
+              notes: { type: "string" }
+            }
+          },
+          grading_recommendation: { type: "string" },
+          estimated_value_low: { type: "number" },
+          estimated_value_high: { type: "number" },
+          graded_value_low: { type: "number" },
+          graded_value_high: { type: "number" },
+          trading_platforms: {
+            type: "array",
+            maxItems: 5,
+            items: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                price_range: { type: "string" },
+                url: { type: "string" },
+                notes: { type: "string" },
+                is_specialized: { type: "boolean" },
+                is_local: { type: "boolean" }
+              }
+            }
+          }
+        }
+      }
+    });
+
+    const finalResult = {
+      ...response,
+      front_image_url: frontUrl,
+      back_image_url: backUrl
+    };
+
+    await base44.entities.PriceEvaluation.create(finalResult);
+    setCollectibleResult(finalResult);
+    setIsProcessing(false);
   };
 
   return (
@@ -188,30 +297,54 @@ export default function Home() {
           <p className="text-slate-400">Find the best prices for anything</p>
         </motion.div>
 
+        {/* History Link */}
+        <div className="flex justify-end mb-4">
+          <Link 
+            to={createPageUrl('History')}
+            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
+          >
+            <Clock className="w-4 h-4" />
+            History
+          </Link>
+        </div>
+
         {/* Main Content */}
-        {result ? (
+        {collectibleResult ? (
+          <CollectiblesResults result={collectibleResult} onBack={handleBack} />
+        ) : result ? (
           <PriceResults result={result} onBack={handleBack} onSearchSimilar={handleKeywordSearch} />
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full bg-slate-800/50 border border-slate-700 rounded-xl p-1 mb-6">
               <TabsTrigger 
                 value="camera" 
-                className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2.5 text-slate-400 data-[state=active]:text-white"
+                className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
-                <Camera className="w-4 h-4 mr-2" />
+                <Camera className="w-4 h-4 mr-1" />
                 Camera
               </TabsTrigger>
               <TabsTrigger 
-                value="search" 
-                className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2.5 text-slate-400 data-[state=active]:text-white"
+                value="collectibles" 
+                className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
-                <Search className="w-4 h-4 mr-2" />
+                <Gem className="w-4 h-4 mr-1" />
+                Collectibles
+              </TabsTrigger>
+              <TabsTrigger 
+                value="search" 
+                className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
+              >
+                <Search className="w-4 h-4 mr-1" />
                 Search
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="camera" className="mt-0">
               <CameraCapture onCapture={handleImageCapture} isProcessing={isProcessing} />
+            </TabsContent>
+
+            <TabsContent value="collectibles" className="mt-0">
+              <CollectiblesCapture onCapture={handleCollectiblesCapture} isProcessing={isProcessing} />
             </TabsContent>
 
             <TabsContent value="search" className="mt-0">
