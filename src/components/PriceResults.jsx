@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink, AlertTriangle, CheckCircle, Info } from 'lucide-react';
+import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink, AlertTriangle, CheckCircle, Info, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
 import ConditionDetails from './ConditionDetails';
@@ -58,6 +58,7 @@ function RecommendationItem({ rec, type, index }) {
         <div className="flex-1 min-w-0">
           <div className="font-medium text-white truncate flex items-center gap-2">
             {rec.platform}
+            {rec.is_local && <MapPin className="w-3 h-3 text-emerald-400" />}
             {rec.url && <ExternalLink className="w-3 h-3 text-slate-500" />}
           </div>
           <div className="text-sm text-slate-400">

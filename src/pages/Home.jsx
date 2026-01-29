@@ -11,6 +11,21 @@ export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
   const [activeTab, setActiveTab] = useState('camera');
+  const [userLocation, setUserLocation] = useState(null);
+
+  React.useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        () => {} // Silently fail if denied
+      );
+    }
+  }, []);
 
   const analyzeWithAI = async (prompt, imageUrl = null) => {
     const response = await base44.integrations.Core.InvokeLLM({
@@ -55,17 +70,20 @@ export default function Home() {
           auction_price_high: { type: "number" },
           buy_recommendations: {
             type: "array",
+            maxItems: 5,
             items: {
               type: "object",
               properties: {
                 platform: { type: "string" },
                 price_range: { type: "string" },
-                url: { type: "string" }
+                url: { type: "string" },
+                is_local: { type: "boolean" }
               }
             }
           },
           sell_recommendations: {
             type: "array",
+            maxItems: 5,
             items: {
               type: "object",
               properties: {
@@ -73,7 +91,8 @@ export default function Home() {
                 expected_price: { type: "string" },
                 fees: { type: "string" },
                 time_to_sell: { type: "string" },
-                url: { type: "string" }
+                url: { type: "string" },
+                is_local: { type: "boolean" }
               }
             }
           }
@@ -132,10 +151,10 @@ export default function Home() {
       2. NEW retail prices (price range from major retailers)
       3. SECONDHAND/USED prices from marketplaces like eBay, Facebook Marketplace, Craigslist, Mercari
       4. AUCTION prices from eBay auctions, estate sales, auction houses
-      5. Best platforms to BUY this item (with current price ranges and direct URLs to search/product pages)
-      6. Best platforms to SELL this item (with expected prices, seller fees, typical time to sell, and URLs to their selling pages)
+      5. TOP 5 best platforms to BUY this item - PRIORITIZE LOCAL STORES AND MARKETPLACES FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then national/online options. Include price ranges and direct URLs.
+      6. TOP 5 best platforms to SELL this item - PRIORITIZE LOCAL OPTIONS FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then online marketplaces. Include expected prices, seller fees, typical time to sell, and URLs.
       
-      Search for real, current market prices. Be specific with price ranges in USD. Include actual working URLs to each platform's relevant page.`
+      Mark each recommendation with is_local: true/false. Search for real, current market prices. Be specific with price ranges in USD. Include actual working URLs.`
     );
 
     const finalResult = {
