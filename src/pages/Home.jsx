@@ -24,6 +24,29 @@ export default function Home() {
           item_description: { type: "string" },
           category: { type: "string" },
           condition_estimate: { type: "string", enum: ["new", "like_new", "good", "fair", "poor"] },
+          condition_score: { type: "number", minimum: 1, maximum: 10 },
+          condition_details: {
+            type: "object",
+            properties: {
+              summary: { type: "string" },
+              defects_found: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string" },
+                    severity: { type: "string", enum: ["minor", "moderate", "severe"] },
+                    location: { type: "string" },
+                    price_impact: { type: "string" }
+                  }
+                }
+              },
+              wear_level: { type: "string" },
+              functionality_assessment: { type: "string" },
+              cosmetic_rating: { type: "number", minimum: 1, maximum: 10 },
+              completeness: { type: "string" }
+            }
+          },
           new_price_low: { type: "number" },
           new_price_high: { type: "number" },
           secondhand_price_low: { type: "number" },
@@ -66,15 +89,27 @@ export default function Home() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     
     const analysisResult = await analyzeWithAI(
-      `Analyze this image and identify the item. Search the internet for current market prices. Provide:
+      `Analyze this image and identify the item. CAREFULLY EXAMINE THE CONDITION by looking for:
+      - Scratches, scuffs, or surface damage
+      - Dents, cracks, or structural damage
+      - Discoloration, stains, or fading
+      - Signs of wear and tear (worn edges, loose parts)
+      - Missing components or accessories
+      - Overall cleanliness and maintenance level
+      
+      Provide a detailed condition assessment with:
+      - condition_score (1-10, where 10 is mint/perfect)
+      - condition_details including: summary, specific defects found (type, severity, location, price impact), wear level, functionality assessment, cosmetic rating (1-10), and completeness
+      
+      Then search the internet for current market prices. ADJUST PRICES BASED ON THE CONDITION YOU OBSERVED:
       1. Item name and description
       2. NEW retail prices (price range)
-      3. SECONDHAND/USED prices from marketplaces like eBay, Facebook Marketplace, Craigslist
-      4. AUCTION prices from eBay auctions, estate sales
-      5. Best platforms to BUY this item (with current price ranges and direct URLs to search/product pages)
-      6. Best platforms to SELL this item (with expected prices, fees, typical time to sell, and URLs to their selling pages)
+      3. SECONDHAND/USED prices - adjust based on condition defects found
+      4. AUCTION prices - factor in condition for realistic auction estimates
+      5. Best platforms to BUY this item (with current price ranges and direct URLs)
+      6. Best platforms to SELL this item (with expected prices adjusted for condition, fees, time to sell, and URLs)
       
-      Search for real, current prices. Be specific with price ranges in USD. Include actual working URLs to each platform's relevant page.`,
+      Be specific with price ranges in USD. Include actual working URLs.`,
       file_url
     );
 

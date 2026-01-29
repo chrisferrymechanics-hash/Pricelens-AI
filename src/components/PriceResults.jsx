@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink } from 'lucide-react';
+import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
 
@@ -101,10 +101,24 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
           )}
           <h2 className="text-xl font-bold text-white">{result.item_name}</h2>
           <p className="text-slate-400 text-sm mt-1">{result.item_description}</p>
-          {result.condition_estimate && (
-            <span className="inline-block mt-2 px-2 py-1 text-xs rounded-full bg-slate-700 text-slate-300 capitalize">
-              {result.condition_estimate.replace('_', ' ')} condition
-            </span>
+  {result.condition_estimate && (
+            <div className="mt-3 space-y-2">
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-1 text-xs rounded-full bg-slate-700 text-slate-300 capitalize">
+                  {result.condition_estimate.replace('_', ' ')} condition
+                </span>
+                {result.condition_score && (
+                  <span className={`px-2 py-1 text-xs rounded-full font-medium ${
+                    result.condition_score >= 8 ? 'bg-emerald-500/20 text-emerald-400' :
+                    result.condition_score >= 6 ? 'bg-cyan-500/20 text-cyan-400' :
+                    result.condition_score >= 4 ? 'bg-amber-500/20 text-amber-400' :
+                    'bg-red-500/20 text-red-400'
+                  }`}>
+                    {result.condition_score}/10
+                  </span>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </div>
