@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
+import ConditionDetails from './ConditionDetails';
 
 function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 }) {
   const avgPrice = (lowPrice + highPrice) / 2;
@@ -118,6 +119,10 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
                   </span>
                 )}
               </div>
+              <ConditionDetails 
+                conditionDetails={result.condition_details} 
+                conditionScore={result.condition_score}
+              />
             </div>
           )}
         </div>
