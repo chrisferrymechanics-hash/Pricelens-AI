@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Camera, Search, Sparkles, Gem, Clock } from 'lucide-react';
+import { Camera, Search, Sparkles, Gem, Clock, Crown } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -297,8 +297,15 @@ Search the internet for current market data. Be specific with USD prices.`,
           <p className="text-slate-400">Find the best prices for anything</p>
         </motion.div>
 
-        {/* History Link */}
-        <div className="flex justify-end mb-4">
+        {/* Top Links */}
+        <div className="flex justify-between items-center mb-4">
+          <Link 
+            to={createPageUrl('Pricing')}
+            className="flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors"
+          >
+            <Crown className="w-4 h-4" />
+            Upgrade
+          </Link>
           <Link 
             to={createPageUrl('History')}
             className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
