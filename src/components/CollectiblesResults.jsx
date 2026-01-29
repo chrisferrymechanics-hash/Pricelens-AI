@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield } from 'lucide-react';
+import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 function RarityBadge({ rarity, score }) {
@@ -126,6 +126,50 @@ export default function CollectiblesResults({ result, onBack }) {
       {/* Authenticity */}
       <AuthenticityIndicator authenticity={result.authenticity} />
 
+      {/* Extracted Details */}
+      {(result.serial_number || result.mint_mark || result.artist_signature || result.year || result.edition) && (
+        <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30">
+          <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <Hash className="w-4 h-4 text-cyan-400" />
+            Extracted Details
+          </h3>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {result.serial_number && (
+              <div>
+                <span className="text-slate-500">Serial Number:</span>
+                <div className="text-white font-mono mt-0.5">{result.serial_number}</div>
+              </div>
+            )}
+            {result.mint_mark && (
+              <div>
+                <span className="text-slate-500">Mint Mark:</span>
+                <div className="text-white font-mono mt-0.5">{result.mint_mark}</div>
+              </div>
+            )}
+            {result.year && (
+              <div>
+                <span className="text-slate-500">Year:</span>
+                <div className="text-white mt-0.5">{result.year}</div>
+              </div>
+            )}
+            {result.edition && (
+              <div>
+                <span className="text-slate-500">Edition:</span>
+                <div className="text-white mt-0.5">{result.edition}</div>
+              </div>
+            )}
+            {result.artist_signature && (
+              <div className="col-span-2">
+                <span className="text-slate-500 flex items-center gap-1">
+                  <Pen className="w-3 h-3" /> Artist Signature:
+                </span>
+                <div className="text-white font-serif italic mt-0.5">{result.artist_signature}</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Key Details */}
       {result.key_identifiers && result.key_identifiers.length > 0 && (
         <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
@@ -162,6 +206,63 @@ export default function CollectiblesResults({ result, onBack }) {
           </div>
         </div>
       </div>
+
+      {/* Grading Standards */}
+      {result.grading_standards && (
+        <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30">
+          <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <Award className="w-4 h-4 text-purple-400" />
+            {result.grading_standards.service} Grading Standards
+          </h3>
+          <div className="space-y-2 text-sm">
+            <div>
+              <span className="text-slate-500">Scale:</span>
+              <span className="text-white ml-2">{result.grading_standards.scale}</span>
+            </div>
+            {result.grading_standards.estimated_grade && (
+              <div>
+                <span className="text-slate-500">Estimated Grade:</span>
+                <span className="text-purple-400 ml-2 font-bold">{result.grading_standards.estimated_grade}</span>
+              </div>
+            )}
+            {result.grading_standards.criteria && (
+              <div>
+                <span className="text-slate-500">Criteria:</span>
+                <p className="text-slate-400 mt-1">{result.grading_standards.criteria}</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Historical Sales */}
+      {result.historical_sales && result.historical_sales.length > 0 && (
+        <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
+          <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <Clock className="w-4 h-4 text-emerald-400" />
+            Recent Sales History
+          </h3>
+          <div className="space-y-2">
+            {result.historical_sales.map((sale, i) => (
+              <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/50">
+                <div className="flex-1">
+                  <div className="text-sm text-white font-medium">${sale.price?.toFixed(0)}</div>
+                  <div className="text-xs text-slate-500 flex items-center gap-2">
+                    <Calendar className="w-3 h-3" />
+                    {sale.date} • {sale.platform}
+                    {sale.grade && ` • Grade: ${sale.grade}`}
+                  </div>
+                </div>
+                {sale.url && (
+                  <a href={sale.url} target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300">
+                    <ExternalLink className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Grading Info */}
       {result.grading_recommendation && (

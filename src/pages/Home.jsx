@@ -190,43 +190,55 @@ export default function Home() {
     const fileUrls = backUrl ? [frontUrl, backUrl] : [frontUrl];
     
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert collectibles appraiser. Analyze ${backUrl ? 'both the FRONT and BACK images' : 'this image'} of a collectible item.
+      prompt: `You are an expert collectibles appraiser with access to PSA, PCGS, NGC, CGC, and other major grading services' databases. Analyze ${backUrl ? 'both the FRONT and BACK images' : 'this image'} of a collectible item.
 
-IDENTIFY THE TYPE: Determine if this is a coin, stamp, comic book, trading card, antique, memorabilia, or other collectible.
+    STEP 1: IMAGE RECOGNITION - EXTRACT SPECIFIC DETAILS:
+    Look carefully at the images and identify:
+    - Serial numbers, certification numbers, or unique identifiers (look at edges, backs, margins)
+    - Mint marks, designer initials, or manufacturer stamps
+    - Artist signatures or autographs (examine corners, backs, borders)
+    - Year/date markings (any visible dates on the item)
+    - Edition numbers or variant identifiers
+    - Grade labels if already professionally graded
 
-DETAILED IDENTIFICATION:
-- Exact name/title of the item
-- Year/date of issue or manufacture
-- Mint/publisher/manufacturer
-- Edition, series, or variant
-- Any special markings, errors, or distinguishing features
+    STEP 2: IDENTIFY THE COLLECTIBLE:
+    - Exact name/title of the item
+    - Collectible type (coin, stamp, comic, trading_card, antique, memorabilia, other)
+    - Mint/publisher/manufacturer
+    - Edition, series, or variant
+    - Any special markings, errors, or distinguishing features
 
-RARITY ASSESSMENT:
-- Rarity level (common, uncommon, rare, very_rare, extremely_rare, legendary)
-- Rarity score (1-10)
-- Key identifiers that affect rarity (mint marks, errors, limited editions, first prints, etc.)
+    STEP 3: EXTERNAL DATABASE LOOKUP:
+    Search PSA, PCGS, NGC, CGC, Heritage Auctions, eBay sold listings, and specialized databases for:
+    - Official grading standards for this specific item
+    - Historical sales data (recent sales with dates, prices, grades, platforms)
+    - Population reports (how many graded at each level)
+    - Recommended grading service for this type of collectible
 
-AUTHENTICITY CHECK:
-- Confidence level (0-100%) that this is authentic
-- Notes on authenticity indicators observed
-- Any red flags or concerns
+    STEP 4: GRADING STANDARDS:
+    Based on the database information, provide:
+    - Which grading service is best (PSA for cards, PCGS for coins, CGC for comics, etc.)
+    - Their grading scale (e.g., PSA 1-10, PCGS 1-70, CGC 0.5-10.0)
+    - Estimated grade based on visible condition
+    - Grading criteria that apply to this item
 
-CONDITION & GRADING:
-- Overall condition estimate
-- Grading recommendation (should it be professionally graded? which service?)
+    STEP 5: RARITY & AUTHENTICITY:
+    - Rarity level and score (1-10)
+    - Key identifiers affecting rarity
+    - Authenticity confidence (0-100%) with specific notes
 
-VALUE ESTIMATION:
-- Estimated value range (ungraded)
-- Estimated value range (if professionally graded)
+    STEP 6: VALUE ESTIMATION:
+    Using historical sales data from databases:
+    - Estimated value range (ungraded)
+    - Estimated value range (if professionally graded)
+    - Factor in the specific serial number, mint mark, or signature if rare
 
-TRADING PLATFORMS (TOP 5):
-- Recommend the best specialized platforms for buying/selling this type of collectible
-- Include auction houses, specialized dealers, and online marketplaces
-- Prioritize platforms specific to this collectible type (e.g., PCGS for coins, PSA for cards)
-- Include URLs and typical price ranges
-- Mark specialized platforms with is_specialized: true
+    STEP 7: TRADING PLATFORMS (TOP 5):
+    - Specialized platforms for this collectible type with URLs
+    - Recent price ranges from actual sales
+    - Mark specialized platforms with is_specialized: true
 
-Search the internet for current market data. Be specific with USD prices.`,
+    Search the internet extensively for ALL this information. Be thorough and specific with USD prices and dates.`,
       add_context_from_internet: true,
       file_urls: fileUrls,
       response_json_schema: {
@@ -235,6 +247,11 @@ Search the internet for current market data. Be specific with USD prices.`,
           item_name: { type: "string" },
           item_description: { type: "string" },
           collectible_type: { type: "string", enum: ["coin", "stamp", "comic", "trading_card", "antique", "memorabilia", "other"] },
+          serial_number: { type: "string" },
+          mint_mark: { type: "string" },
+          artist_signature: { type: "string" },
+          year: { type: "string" },
+          edition: { type: "string" },
           rarity: { type: "string", enum: ["common", "uncommon", "rare", "very_rare", "extremely_rare", "legendary"] },
           rarity_score: { type: "number", minimum: 1, maximum: 10 },
           key_identifiers: { type: "array", items: { type: "string" } },
@@ -243,6 +260,30 @@ Search the internet for current market data. Be specific with USD prices.`,
             properties: {
               confidence: { type: "number", minimum: 0, maximum: 100 },
               notes: { type: "string" }
+            }
+          },
+          grading_service: { type: "string" },
+          grading_standards: {
+            type: "object",
+            properties: {
+              service: { type: "string" },
+              scale: { type: "string" },
+              estimated_grade: { type: "string" },
+              criteria: { type: "string" }
+            }
+          },
+          historical_sales: {
+            type: "array",
+            maxItems: 5,
+            items: {
+              type: "object",
+              properties: {
+                date: { type: "string" },
+                price: { type: "number" },
+                grade: { type: "string" },
+                platform: { type: "string" },
+                url: { type: "string" }
+              }
             }
           },
           grading_recommendation: { type: "string" },
