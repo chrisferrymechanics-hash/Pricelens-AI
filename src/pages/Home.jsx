@@ -173,6 +173,15 @@ export default function Home() {
     };
 
     await base44.entities.PriceEvaluation.create(finalResult);
+    
+    // Deduct credit if applicable
+    if (user && user.plan_type !== 'premium' && user.credits > 0) {
+      await base44.auth.updateMe({ credits: user.credits - 1 });
+      setUser({ ...user, credits: user.credits - 1 });
+    } else if (user && user.plan_type !== 'premium') {
+      setEvaluationCount(evaluationCount + 1);
+    }
+    
     setResult(finalResult);
     setIsProcessing(false);
   };
@@ -203,6 +212,15 @@ export default function Home() {
     };
 
     await base44.entities.PriceEvaluation.create(finalResult);
+    
+    // Deduct credit if applicable
+    if (user && user.plan_type !== 'premium' && user.credits > 0) {
+      await base44.auth.updateMe({ credits: user.credits - 1 });
+      setUser({ ...user, credits: user.credits - 1 });
+    } else if (user && user.plan_type !== 'premium') {
+      setEvaluationCount(evaluationCount + 1);
+    }
+    
     setResult(finalResult);
     setIsProcessing(false);
   };
