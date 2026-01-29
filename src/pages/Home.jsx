@@ -125,10 +125,10 @@ export default function Home() {
       2. NEW retail prices (price range)
       3. SECONDHAND/USED prices - adjust based on condition defects found
       4. AUCTION prices - factor in condition for realistic auction estimates
-      5. Best platforms to BUY this item (with current price ranges and direct URLs)
-      6. Best platforms to SELL this item (with expected prices adjusted for condition, fees, time to sell, and URLs)
+      5. TOP 5 best platforms to BUY this item - PRIORITIZE LOCAL STORES AND MARKETPLACES FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then national/online options. Include price ranges and direct URLs.
+      6. TOP 5 best platforms to SELL this item - PRIORITIZE LOCAL OPTIONS FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then online marketplaces. Include expected prices adjusted for condition, fees, time to sell, and URLs.
       
-      Be specific with price ranges in USD. Include actual working URLs.`,
+      Mark each recommendation with is_local: true/false. Be specific with price ranges in USD. Include actual working URLs.`,
       file_url
     );
 
