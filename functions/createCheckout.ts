@@ -12,7 +12,7 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { priceId } = await req.json();
+    const { priceId, planType } = await req.json();
 
     if (!priceId) {
       return Response.json({ error: 'Price ID is required' }, { status: 400 });
@@ -42,12 +42,13 @@ Deno.serve(async (req) => {
         },
       ],
       mode: isRecurring ? 'subscription' : 'payment',
-      success_url: `${req.headers.get('origin') || 'https://your-app.com'}?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: req.headers.get('origin') || 'https://your-app.com',
+      success_url: `${req.headers.get('origin') || 'https://your-app.com'}/CheckoutSuccess?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get('origin') || 'https://your-app.com'}/Pricing`,
       customer_email: user.email,
       metadata: {
         base44_app_id: Deno.env.get('BASE44_APP_ID'),
-        user_email: user.email
+        user_email: user.email,
+        plan_type: planType || 'premium'
       }
     });
 

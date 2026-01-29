@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Check, Sparkles, Zap, ArrowLeft, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 
 const plans = [
@@ -18,8 +18,9 @@ const plans = [
       'Camera & keyword search',
       'Community support'
     ],
-    buttonText: 'Current Plan',
-    buttonVariant: 'outline'
+    buttonText: 'Free',
+    buttonVariant: 'outline',
+    isFree: true
   },
   {
     name: 'Premium',
@@ -55,13 +56,18 @@ const plans = [
 
 export default function Pricing() {
   const [loading, setLoading] = useState(null);
+  const navigate = useNavigate();
 
-  const handleCheckout = async (priceId, planName) => {
+  const handleFreePlan = () => {
+    navigate(createPageUrl('Home'));
+  };
+
+  const handleCheckout = async (priceId, planName, planType) => {
     if (!priceId) return;
 
     try {
       setLoading(priceId);
-      const response = await base44.functions.invoke('createCheckout', { priceId });
+      const response = await base44.functions.invoke('createCheckout', { priceId, planType });
 
       if (response.data.isIframeError) {
         alert('Checkout is not available in preview mode. Please publish your app and open it in a new tab.');
@@ -145,8 +151,8 @@ export default function Pricing() {
               </ul>
 
               <Button
-                onClick={() => handleCheckout(plan.priceId, plan.name)}
-                disabled={!plan.priceId || loading === plan.priceId}
+                onClick={() => plan.isFree ? handleFreePlan() : handleCheckout(plan.priceId, plan.name, plan.name === 'Premium' ? 'premium' : 'credits')}
+                disabled={loading === plan.priceId}
                 variant={plan.buttonVariant || 'default'}
                 className={`w-full ${
                   plan.highlight 

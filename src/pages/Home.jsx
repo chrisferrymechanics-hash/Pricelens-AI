@@ -17,6 +17,8 @@ export default function Home() {
   const [collectibleResult, setCollectibleResult] = useState(null);
   const [activeTab, setActiveTab] = useState('camera');
   const [userLocation, setUserLocation] = useState(null);
+  const [user, setUser] = useState(null);
+  const [evaluationCount, setEvaluationCount] = useState(0);
 
   React.useEffect(() => {
     if (navigator.geolocation) {
@@ -30,6 +32,21 @@ export default function Home() {
         () => {} // Silently fail if denied
       );
     }
+
+    base44.auth.me().then((currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        // Count evaluations this month
+        const now = new Date();
+        const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        base44.entities.PriceEvaluation.filter({
+          created_by: currentUser.email
+        }).then(evals => {
+          const monthlyEvals = evals.filter(e => new Date(e.created_date) >= firstOfMonth);
+          setEvaluationCount(monthlyEvals.length);
+        });
+      }
+    });
   }, []);
 
   const analyzeWithAI = async (prompt, imageUrl = null) => {
@@ -107,7 +124,20 @@ export default function Home() {
     return response;
   };
 
+  const canEvaluate = () => {
+    if (!user) return false;
+    if (user.plan_type === 'premium') return true;
+    if (user.credits > 0) return true;
+    if (evaluationCount < 5) return true;
+    return false;
+  };
+
   const handleImageCapture = async (file) => {
+    if (!canEvaluate()) {
+      alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
+      return;
+    }
+    
     setIsProcessing(true);
     
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
@@ -148,6 +178,11 @@ export default function Home() {
   };
 
   const handleKeywordSearch = async (query) => {
+    if (!canEvaluate()) {
+      alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
+      return;
+    }
+    
     setIsProcessing(true);
     
     const analysisResult = await analyzeWithAI(
@@ -178,6 +213,11 @@ export default function Home() {
   };
 
   const handleCollectiblesCapture = async (frontFile, backFile) => {
+    if (!canEvaluate()) {
+      alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
+      return;
+    }
+    
     setIsProcessing(true);
     
     const { file_url: frontUrl } = await base44.integrations.Core.UploadFile({ file: frontFile });
@@ -317,6 +357,15 @@ export default function Home() {
     };
 
     await base44.entities.PriceEvaluation.create(finalResult);
+    
+    // Deduct credit if applicable
+    if (user && user.plan_type !== 'premium' && user.credits > 0) {
+      await base44.auth.updateMe({ credits: user.credits - 1 });
+      setUser({ ...user, credits: user.credits - 1 });
+    } else if (user && user.plan_type !== 'premium') {
+      setEvaluationCount(evaluationCount + 1);
+    }
+    
     setCollectibleResult(finalResult);
     setIsProcessing(false);
   };
@@ -336,6 +385,17 @@ export default function Home() {
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Price Scout</h1>
           <p className="text-slate-400">Find the best prices for anything</p>
+          {user && (
+            <div className="mt-3 text-sm text-slate-400">
+              {user.plan_type === 'premium' ? (
+                <span className="text-emerald-400">Premium • Unlimited evaluations</span>
+              ) : user.credits > 0 ? (
+                <span>{user.credits} credits remaining</span>
+              ) : (
+                <span>{5 - evaluationCount} free evaluations remaining this month</span>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Top Links */}

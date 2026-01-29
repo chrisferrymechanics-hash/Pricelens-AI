@@ -50,12 +50,14 @@
 import History from './pages/History';
 import Home from './pages/Home';
 import Pricing from './pages/Pricing';
+import CheckoutSuccess from './pages/CheckoutSuccess';
 
 
 export const PAGES = {
     "History": History,
     "Home": Home,
     "Pricing": Pricing,
+    "CheckoutSuccess": CheckoutSuccess,
 }
 
 export const pagesConfig = {
