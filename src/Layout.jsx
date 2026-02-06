@@ -55,11 +55,29 @@ export default function Layout({ children, currentPageName }) {
       </nav>
 
       <style>{`
+        body {
+          overscroll-behavior-y: none;
+          -webkit-overflow-scrolling: touch;
+        }
+        
         @supports(padding: max(0px)) {
           body {
             padding-top: env(safe-area-inset-top);
             padding-bottom: env(safe-area-inset-bottom);
           }
+        }
+
+        /* Disable text selection on interactive elements */
+        button, a, nav, [role="button"], [role="tab"] {
+          user-select: none;
+          -webkit-user-select: none;
+          -webkit-touch-callout: none;
+        }
+
+        /* Allow selection only in content areas */
+        input, textarea, [contenteditable="true"] {
+          user-select: text;
+          -webkit-user-select: text;
         }
       `}</style>
     </div>
