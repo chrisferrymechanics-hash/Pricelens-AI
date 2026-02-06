@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import GradingEstimates from './GradingEstimates';
 
 function RarityBadge({ rarity, score }) {
   const rarityConfig = {
