@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock } from 'lucide-react';
+import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GradingEstimates from './GradingEstimates';
 import PullToRefresh from './PullToRefresh';
+import ConditionDetails from './ConditionDetails';
 
 function RarityBadge({ rarity, score }) {
   const rarityConfig = {
@@ -129,12 +130,36 @@ export default function CollectiblesResults({ result, onBack }) {
           <h2 className="text-xl font-bold text-white">{result.item_name}</h2>
           <p className="text-slate-400 text-sm mt-1">{result.item_description}</p>
           
-          {/* Rarity Badge */}
-          <div className="mt-3">
+          {/* Condition Score & Rarity */}
+          <div className="mt-3 flex items-center gap-2 flex-wrap">
+            {result.condition_score && (
+              <span className={`px-3 py-1.5 text-sm rounded-full font-medium border ${
+                result.condition_score >= 9 ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
+                result.condition_score >= 7 ? 'bg-cyan-500/20 text-cyan-400 border-cyan-500/30' :
+                result.condition_score >= 5 ? 'bg-amber-500/20 text-amber-400 border-amber-500/30' :
+                'bg-red-500/20 text-red-400 border-red-500/30'
+              }`}>
+                Condition: {result.condition_score}/10
+              </span>
+            )}
             <RarityBadge rarity={result.rarity} score={result.rarity_score} />
           </div>
         </div>
       </div>
+
+      {/* AI Condition Analysis */}
+      {result.condition_details && (
+        <div className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/30">
+          <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+            <Info className="w-4 h-4 text-blue-400" />
+            AI Condition Analysis
+          </h3>
+          <ConditionDetails 
+            conditionDetails={result.condition_details}
+            conditionScore={result.condition_score}
+          />
+        </div>
+      )}
 
       {/* Authenticity */}
       <AuthenticityIndicator authenticity={result.authenticity} />
