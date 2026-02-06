@@ -29,8 +29,7 @@ export default function History() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <div className="max-w-lg mx-auto px-4 py-6">
+    <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header */}
         <div className="flex items-center gap-3 mb-6">
           <Link to={createPageUrl('Home')}>

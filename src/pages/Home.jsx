@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Camera, Search, Sparkles, Gem, Clock, Crown } from 'lucide-react';
+import { Camera, Search, Sparkles, Gem } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+
 import CameraCapture from '@/components/CameraCapture';
 import KeywordSearch from '@/components/KeywordSearch';
 import PriceResults from '@/components/PriceResults';
@@ -389,8 +388,7 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      <div className="max-w-lg mx-auto px-4 py-6 pb-20">
+    <div className="max-w-lg mx-auto px-4 py-6">
         {/* Header */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -416,23 +414,7 @@ export default function Home() {
           )}
         </motion.div>
 
-        {/* Top Links */}
-        <div className="flex justify-between items-center mb-4">
-          <Link 
-            to={createPageUrl('Pricing')}
-            className="flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300 transition-colors"
-          >
-            <Crown className="w-4 h-4" />
-            Upgrade
-          </Link>
-          <Link 
-            to={createPageUrl('History')}
-            className="flex items-center gap-2 text-sm text-slate-400 hover:text-white transition-colors"
-          >
-            <Clock className="w-4 h-4" />
-            History
-          </Link>
-        </div>
+
 
         {/* Main Content */}
         {collectibleResult ? (
