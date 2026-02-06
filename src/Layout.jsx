@@ -54,7 +54,7 @@ export default function Layout({ children, currentPageName }) {
         </div>
       </nav>
 
-      <style jsx global>{`
+      <style>{`
         @supports(padding: max(0px)) {
           body {
             padding-top: env(safe-area-inset-top);
