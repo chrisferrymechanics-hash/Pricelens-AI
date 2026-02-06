@@ -29,6 +29,7 @@ export default function Settings() {
     setDarkMode(newMode);
     const mode = newMode ? 'dark' : 'light';
     localStorage.setItem('theme-mode', mode);
+    document.documentElement.setAttribute('data-theme', mode);
     document.documentElement.style.colorScheme = mode;
   };
 
