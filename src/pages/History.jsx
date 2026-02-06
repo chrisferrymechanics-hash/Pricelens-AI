@@ -13,10 +13,32 @@ export default function History() {
     queryFn: () => base44.entities.PriceEvaluation.list('-created_date', 50),
   });
 
+  const [deletedIds, setDeletedIds] = React.useState(new Set());
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
   const handleDelete = async (id) => {
-    await base44.entities.PriceEvaluation.delete(id);
-    refetch();
+    // Optimistic update
+    setDeletedIds(prev => new Set(prev).add(id));
+    try {
+      await base44.entities.PriceEvaluation.delete(id);
+      refetch();
+    } catch (error) {
+      // Revert on error
+      setDeletedIds(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(id);
+        return newSet;
+      });
+    }
   };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refetch();
+    setIsRefreshing(false);
+  };
+
+  const visibleEvaluations = evaluations.filter(item => !deletedIds.has(item.id));
 
   const formatDate = (dateStr) => {
     const date = new Date(dateStr);
@@ -31,12 +53,12 @@ export default function History() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-          <Link to={createPageUrl('Home')}>
-            <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
+      <div className="flex items-center gap-3 mb-6 select-none">
+        <Link to={createPageUrl('Home')}>
+          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+        </Link>
         <div>
           <h1 className="text-2xl font-bold text-white">Search History</h1>
           <p className="text-slate-400 text-sm">Your past evaluations</p>
@@ -51,15 +73,38 @@ export default function History() {
             className="w-8 h-8 border-2 border-slate-700 border-t-cyan-400 rounded-full"
           />
         </div>
-      ) : evaluations.length === 0 ? (
-        <div className="text-center py-12">
+      ) : visibleEvaluations.length === 0 ? (
+        <div className="text-center py-12 select-none">
           <Clock className="w-12 h-12 text-slate-600 mx-auto mb-4" />
           <p className="text-slate-400">No search history yet</p>
           <p className="text-slate-500 text-sm mt-1">Your evaluations will appear here</p>
         </div>
       ) : (
-        <div className="space-y-3">
-          {evaluations.map((item, index) => (
+        <motion.div
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={0.2}
+          onDragEnd={(e, info) => {
+            if (info.offset.y > 150) {
+              handleRefresh();
+            }
+          }}
+          className="space-y-3 relative"
+        >
+          {isRefreshing && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="absolute -top-12 left-1/2 -translate-x-1/2"
+            >
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                className="w-6 h-6 border-2 border-slate-700 border-t-cyan-400 rounded-full"
+              />
+            </motion.div>
+          )}
+          {visibleEvaluations.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 10 }}
@@ -129,7 +174,7 @@ export default function History() {
               </div>
             </motion.div>
           ))}
-        </div>
+        </motion.div>
       )}
     </div>
   );

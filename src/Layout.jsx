@@ -27,7 +27,7 @@ export default function Layout({ children, currentPageName }) {
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800">
+      <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 select-none">
         {/* Safe area bottom padding */}
         <div className="pb-[env(safe-area-inset-bottom)]">
           <div className="flex items-center justify-around px-4 py-3">
