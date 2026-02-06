@@ -2,9 +2,33 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Home, Clock, Settings } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  
+  // Store scroll positions for each page
+  const scrollPositions = React.useRef({});
+  
+  // Save scroll position before navigation
+  React.useEffect(() => {
+    const handleScroll = () => {
+      scrollPositions.current[location.pathname] = window.scrollY;
+    };
+    
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [location.pathname]);
+  
+  // Restore scroll position after navigation
+  React.useEffect(() => {
+    const savedPosition = scrollPositions.current[location.pathname];
+    if (savedPosition !== undefined) {
+      window.scrollTo(0, savedPosition);
+    } else {
+      window.scrollTo(0, 0);
+    }
+  }, [location.pathname]);
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
@@ -23,7 +47,17 @@ export default function Layout({ children, currentPageName }) {
       
       {/* Main content with bottom padding for nav */}
       <div className="pb-20">
-        {children}
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            transition={{ duration: 0.2, ease: 'easeInOut' }}
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </div>
 
       {/* Bottom Navigation */}
