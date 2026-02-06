@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Store, TrendingUp, Package, RefreshCw, ExternalLink, Clock, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
+import { Store, TrendingUp, Package, RefreshCw, ExternalLink, Clock, DollarSign, AlertCircle, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import PullToRefresh from '@/components/PullToRefresh';
 
 export default function Marketplace() {
@@ -77,13 +75,8 @@ export default function Marketplace() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6 select-none">
-        <Link to={createPageUrl('Home')}>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div className="flex-1">
+      <div className="flex items-center justify-between mb-6 select-none">
+        <div>
           <h1 className="text-2xl font-bold text-white">Marketplace</h1>
           <p className="text-slate-400 text-sm">Manage your listings</p>
         </div>

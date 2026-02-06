@@ -4,8 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { Clock, Search, Camera, Gem, ArrowLeft, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import PullToRefresh from '@/components/PullToRefresh';
 
 export default function History() {
@@ -47,16 +45,9 @@ export default function History() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6 select-none">
-        <Link to={createPageUrl('Home')}>
-          <Button variant="ghost" size="icon" className="text-slate-400 hover:text-white">
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-2xl font-bold text-white">Search History</h1>
-          <p className="text-slate-400 text-sm">Your past evaluations</p>
-        </div>
+      <div className="mb-6 select-none">
+        <h1 className="text-2xl font-bold text-white">Search History</h1>
+        <p className="text-slate-400 text-sm">Your past evaluations</p>
       </div>
 
       {isLoading ? (

@@ -35,6 +35,7 @@ export default function MarketplaceListingForm({ result, onSuccess }) {
 
     try {
       const { base44 } = await import('@/api/base44Client');
+      const { useQueryClient } = await import('@tanstack/react-query');
 
       // Collect images
       const images = [];
@@ -43,7 +44,26 @@ export default function MarketplaceListingForm({ result, onSuccess }) {
       if (result?.back_image_url) images.push(result.back_image_url);
       if (result?.additional_image_urls) images.push(...result.additional_image_urls);
 
-      // Create listing via backend
+      // Optimistic update - create temp listing immediately
+      const tempListing = {
+        id: `temp-${Date.now()}`,
+        evaluation_id: result?.id,
+        platform: 'ebay',
+        title: formData.title,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        quantity: parseInt(formData.quantity),
+        condition: formData.condition,
+        category: formData.category,
+        images: images.filter(Boolean),
+        status: 'pending',
+        created_date: new Date().toISOString()
+      };
+
+      // Update cache immediately
+      if (onSuccess) onSuccess(tempListing);
+
+      // Create listing via backend (async)
       const response = await base44.functions.invoke('ebayCreateListing', {
         title: formData.title,
         description: formData.description,
@@ -84,7 +104,6 @@ export default function MarketplaceListingForm({ result, onSuccess }) {
       });
 
       setSuccess(true);
-      if (onSuccess) onSuccess(response.data);
 
     } catch (err) {
       console.error('Listing creation error:', err);

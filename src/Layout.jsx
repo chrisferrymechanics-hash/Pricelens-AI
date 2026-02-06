@@ -43,6 +43,11 @@ export default function Layout({ children, currentPageName }) {
                 <Link
                   key={item.name}
                   to={item.path}
+                  onClick={() => {
+                    if ('vibrate' in navigator) {
+                      navigator.vibrate(10);
+                    }
+                  }}
                   className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                     active 
                       ? 'text-cyan-400 bg-cyan-500/10' 
