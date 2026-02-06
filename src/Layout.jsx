@@ -21,17 +21,14 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
-      {/* Safe area top */}
-      <div className="h-[env(safe-area-inset-top)]" />
-      
+    <div className="min-h-screen bg-[hsl(var(--background))]">
       {/* Main content with bottom padding for nav (64px nav + safe area) */}
       <div style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom))' }}>
         {isTabRoute ? <TabContainer /> : children}
       </div>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-slate-900/95 backdrop-blur-lg border-t border-slate-800 select-none">
+      <nav className="fixed bottom-0 left-0 right-0 bg-[hsl(var(--background))] dark:bg-slate-900/95 backdrop-blur-lg border-t dark:border-slate-800 border-slate-200 select-none">
         {/* Safe area bottom padding */}
         <div className="pb-[env(safe-area-inset-bottom)]">
           <div className="flex items-center justify-around px-4 py-3">
@@ -44,8 +41,12 @@ export default function Layout({ children, currentPageName }) {
                   key={item.name}
                   to={item.path}
                   onClick={() => {
-                    if ('vibrate' in navigator) {
-                      navigator.vibrate(10);
+                    try {
+                      if ('vibrate' in navigator) {
+                        navigator.vibrate(10);
+                      }
+                    } catch (e) {
+                      // Haptics not supported or disabled (e.g., iOS Safari)
                     }
                   }}
                   className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
@@ -54,7 +55,7 @@ export default function Layout({ children, currentPageName }) {
                       : 'text-slate-500 hover:text-slate-300'
                   }`}
                 >
-                  <Icon className={`w-6 h-6 ${active ? 'scale-110' : ''}`} />
+                  <Icon className={`w-6 h-6 transition-transform ${active ? 'scale-110' : ''}`} />
                   <span className="text-xs font-medium">{item.name}</span>
                 </Link>
               );
