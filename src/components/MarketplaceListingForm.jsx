@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Store, Loader2, AlertCircle, CheckCircle } from 'lucide-react';
-import MobileSelect from '@/components/MobileSelect';
+import { MobileSelect } from '@/components/MobileSelect';
 
 export default function MarketplaceListingForm({ result, onSuccess }) {
   const [formData, setFormData] = useState({
