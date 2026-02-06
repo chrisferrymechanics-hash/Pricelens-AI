@@ -454,9 +454,9 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
         >
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 mb-4">
-            <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span className="text-cyan-400 text-sm font-medium">AI-Powered</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/20 border border-cyan-400/40 mb-4">
+            <Sparkles className="w-4 h-4 text-cyan-300" />
+            <span className="text-cyan-300 text-sm font-medium">AI-Powered</span>
           </div>
           <h1 className="text-3xl font-bold text-white mb-2">Price Scout</h1>
           <p className="text-slate-400">Find the best prices for anything</p>

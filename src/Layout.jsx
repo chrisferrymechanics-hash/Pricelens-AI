@@ -51,8 +51,8 @@ export default function Layout({ children, currentPageName }) {
                   }}
                   className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
                     active 
-                      ? 'text-cyan-400 bg-cyan-500/10' 
-                      : 'text-slate-500 hover:text-slate-300'
+                      ? 'text-cyan-300 bg-cyan-500/15' 
+                      : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   <Icon className={`w-6 h-6 transition-transform ${active ? 'scale-110' : ''}`} />
