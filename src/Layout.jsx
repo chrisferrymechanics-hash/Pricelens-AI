@@ -9,13 +9,21 @@ export default function Layout({ children, currentPageName }) {
   
   React.useEffect(() => {
     // Load and apply saved theme preference
-    const saved = localStorage.getItem('theme-mode');
-    if (saved) {
+    const saved = localStorage.getItem('theme-mode') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+    document.documentElement.style.colorScheme = saved;
+  }, []);
+
+  React.useEffect(() => {
+    // Listen for theme changes from other tabs/Settings
+    const handleStorageChange = () => {
+      const saved = localStorage.getItem('theme-mode') || 'dark';
+      document.documentElement.setAttribute('data-theme', saved);
       document.documentElement.style.colorScheme = saved;
-    } else {
-      // Default to dark mode
-      document.documentElement.style.colorScheme = 'dark';
-    }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
   
   const isTabRoute = ['/', '/Home', '/History', '/Marketplace', '/Settings'].includes(location.pathname);
