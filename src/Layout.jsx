@@ -86,17 +86,31 @@ export default function Layout({ children, currentPageName }) {
       <style>{`
         :root {
           color-scheme: light dark;
+          --background: 222.2 84% 4.9%;
+          --foreground: 210 40% 98%;
+        }
+
+        :root[data-theme="light"] {
+          --background: 0 0% 100%;
+          --foreground: 222.2 84% 4.9%;
+          color-scheme: light;
+        }
+
+        :root[data-theme="dark"] {
+          --background: 222.2 84% 4.9%;
+          --foreground: 210 40% 98%;
+          color-scheme: dark;
         }
 
         @media (prefers-color-scheme: light) {
-          :root {
+          :root:not([data-theme]) {
             --background: 0 0% 100%;
             --foreground: 222.2 84% 4.9%;
           }
         }
 
         @media (prefers-color-scheme: dark) {
-          :root {
+          :root:not([data-theme]) {
             --background: 222.2 84% 4.9%;
             --foreground: 210 40% 98%;
           }
