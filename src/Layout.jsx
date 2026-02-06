@@ -7,6 +7,17 @@ import TabContainer from '@/components/TabContainer';
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   
+  React.useEffect(() => {
+    // Load and apply saved theme preference
+    const saved = localStorage.getItem('theme-mode');
+    if (saved) {
+      document.documentElement.style.colorScheme = saved;
+    } else {
+      // Default to dark mode
+      document.documentElement.style.colorScheme = 'dark';
+    }
+  }, []);
+  
   const isTabRoute = ['/', '/Home', '/History', '/Marketplace', '/Settings'].includes(location.pathname);
   
   const navItems = [
