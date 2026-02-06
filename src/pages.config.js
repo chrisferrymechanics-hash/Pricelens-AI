@@ -52,6 +52,7 @@ import History from './pages/History';
 import Home from './pages/Home';
 import Pricing from './pages/Pricing';
 import Settings from './pages/Settings';
+import Marketplace from './pages/Marketplace';
 import __Layout from './Layout.jsx';
 
 
@@ -61,6 +62,7 @@ export const PAGES = {
     "Home": Home,
     "Pricing": Pricing,
     "Settings": Settings,
+    "Marketplace": Marketplace,
 }
 
 export const pagesConfig = {

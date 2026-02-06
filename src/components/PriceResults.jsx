@@ -6,6 +6,7 @@ import SimilarItems from './SimilarItems';
 import ConditionDetails from './ConditionDetails';
 import PullToRefresh from './PullToRefresh';
 import SellingAssistant from './SellingAssistant';
+import MarketplaceQuickList from './MarketplaceQuickList';
 
 function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 }) {
   const avgPrice = (lowPrice + highPrice) / 2;
@@ -184,6 +185,9 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
 
       {/* AI Selling Assistant */}
       <SellingAssistant result={result} />
+
+      {/* Quick List to eBay */}
+      <MarketplaceQuickList result={result} />
 
       {/* Sell Recommendations */}
       {result.sell_recommendations?.length > 0 && (

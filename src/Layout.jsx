@@ -1,17 +1,18 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Clock, Settings } from 'lucide-react';
+import { Home, Clock, Settings, Store } from 'lucide-react';
 import TabContainer from '@/components/TabContainer';
 
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
   
-  const isTabRoute = ['/', '/Home', '/History', '/Settings'].includes(location.pathname);
+  const isTabRoute = ['/', '/Home', '/History', '/Marketplace', '/Settings'].includes(location.pathname);
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
     { name: 'History', icon: Clock, path: createPageUrl('History') },
+    { name: 'Marketplace', icon: Store, path: createPageUrl('Marketplace') },
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
 
