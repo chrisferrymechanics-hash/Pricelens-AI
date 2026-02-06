@@ -4,6 +4,7 @@ import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDow
 import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
 import ConditionDetails from './ConditionDetails';
+import PullToRefresh from './PullToRefresh';
 
 function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 }) {
   const avgPrice = (lowPrice + highPrice) / 2;
@@ -31,7 +32,8 @@ function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 })
         <span>-</span>
         <TrendingUp className="w-3 h-3" />${highPrice.toFixed(0)}
       </div>
-      </motion.div>
+      </div>
+    </motion.div>
     </PullToRefresh>
   );
 }
