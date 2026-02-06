@@ -3,12 +3,14 @@ import { useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Home from '@/pages/Home';
 import History from '@/pages/History';
+import Marketplace from '@/pages/Marketplace';
 import Settings from '@/pages/Settings';
 
 const PAGE_COMPONENTS = {
   '/': Home,
   '/Home': Home,
   '/History': History,
+  '/Marketplace': Marketplace,
   '/Settings': Settings,
 };
 
@@ -18,7 +20,7 @@ export default function TabContainer() {
   const prevPathRef = React.useRef(location.pathname);
   
   // Tab order for direction detection
-  const tabOrder = ['/', '/Home', '/History', '/Settings'];
+  const tabOrder = ['/', '/Home', '/History', '/Marketplace', '/Settings'];
   
   // Determine navigation direction
   const getDirection = () => {
