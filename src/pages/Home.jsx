@@ -247,13 +247,22 @@ export default function Home() {
     const response = await base44.integrations.Core.InvokeLLM({
       prompt: `You are a professional collectibles appraiser with expertise in ALL major grading services. Analyze these ${fileUrls.length} images comprehensively.
 
-    STEP 1: MULTI-ANGLE IMAGE ANALYSIS
-    Examine ALL provided images from different angles:
+    STEP 1: MULTI-ANGLE IMAGE ANALYSIS & CONDITION ASSESSMENT
+    Examine ALL provided images from different angles and CAREFULLY ASSESS CONDITION:
     - Extract serial numbers, certification codes, unique identifiers
     - Identify mint marks, artist signatures, autographs
     - Check for existing grade labels or authentication marks
-    - Assess condition from all visible angles
-    - Note any defects, wear, or damage visible in any image
+    - DETAILED CONDITION EXAMINATION:
+      * Centering and alignment issues
+      * Corner wear (soft, fuzzy, rounded, damaged)
+      * Edge wear (whitening, chipping, roughness)
+      * Surface condition (scratches, print lines, stains, discoloration)
+      * Structural integrity (creases, tears, bends)
+      * Color vibrancy and fading
+      * Gloss/finish quality
+      * Any restoration or alterations detected
+    - Document EVERY visible defect with location and severity
+    - Assess overall wear level and preservation quality
 
     STEP 2: IDENTIFY & CATEGORIZE
     - Exact item name/title
@@ -262,7 +271,18 @@ export default function Home() {
     - Year, edition, series, variant
     - Key distinguishing features or errors
 
-    STEP 3: DETERMINE APPROPRIATE GRADING SERVICES
+    STEP 3: CONDITION SCORING (1-10 SCALE)
+    Provide an overall condition score:
+    - 10: Gem Mint (perfect in every way)
+    - 9: Mint (nearly perfect, minimal flaws)
+    - 8: Near Mint-Mint (very sharp with minor imperfections)
+    - 7: Near Mint (sharp but shows slight wear)
+    - 6: Excellent-Mint (light wear visible)
+    - 5: Excellent (moderate wear but structurally sound)
+    - 4: Very Good-Excellent (noticeable wear)
+    - 3-1: Good to Poor (significant damage)
+
+    STEP 4: DETERMINE APPROPRIATE GRADING SERVICES
     Based on the collectible type, identify ALL relevant grading services:
     - Trading Cards: PSA, BGS (Beckett), SGC, CGC Cards
     - Coins: PCGS, NGC, ANACS, ICG
@@ -270,35 +290,36 @@ export default function Home() {
     - Stamps: PSE, APS
     - Autographs: PSA/DNA, JSA, BAS
 
-    STEP 4: MULTI-SERVICE GRADING ESTIMATES
+    STEP 5: MULTI-SERVICE GRADING ESTIMATES
     For EACH applicable grading service, provide:
     - Service name (PSA, BGS, CGC, PCGS, NGC, etc.)
     - Grading scale used (PSA 1-10, BGS 1-10 with subgrades, PCGS 1-70, CGC 0.5-10)
-    - Estimated grade based on condition analysis
+    - Estimated grade based on detailed condition analysis above
     - Numeric grade value
     - Subgrades if applicable (BGS: centering, corners, edges, surface)
-    - Specific notes on why this grade was assigned
+    - Specific notes explaining the grade based on observed defects
 
-    STEP 5: DATABASE & MARKET RESEARCH
+    STEP 6: DATABASE & MARKET RESEARCH
     Search PSA CardFacts, BGS Population Report, PCGS CoinFacts, NGC Census, CGC Census, Heritage Auctions, eBay sold listings, COMC, PWCC:
     - Recent sales with SPECIFIC dates, prices, grades, and grading services
     - Population data for each grade level
     - Price trends by grade
     - Record of sales from last 6 months minimum
 
-    STEP 6: COMPREHENSIVE VALUATION
-    - Ungraded value range
+    STEP 7: COMPREHENSIVE VALUATION
+    - Ungraded value range (based on condition assessment)
     - Value range at each major grade level (e.g., PSA 8, PSA 9, PSA 10)
     - Comparison across different grading services
     - Historical sales data supporting these valuations
+    - Price impact of specific defects observed
 
-    STEP 7: AUTHENTICITY & RARITY
+    STEP 8: AUTHENTICITY & RARITY
     - Authenticity confidence (0-100%)
     - Rarity assessment with justification
     - Population reports from grading registries
     - Key identifiers that affect value
 
-    STEP 8: SPECIALIZED TRADING PLATFORMS
+    STEP 9: SPECIALIZED TRADING PLATFORMS
     List top platforms specific to this collectible type with current prices and URLs.
 
     Be extremely thorough - use all available online databases and marketplaces.`,
@@ -310,6 +331,30 @@ export default function Home() {
           item_name: { type: "string" },
           item_description: { type: "string" },
           collectible_type: { type: "string", enum: ["coin", "stamp", "comic", "trading_card", "antique", "memorabilia", "other"] },
+          condition_score: { type: "number", minimum: 1, maximum: 10 },
+          condition_details: {
+            type: "object",
+            properties: {
+              summary: { type: "string" },
+              defects_found: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    type: { type: "string" },
+                    severity: { type: "string", enum: ["minor", "moderate", "severe"] },
+                    location: { type: "string" },
+                    price_impact: { type: "string" }
+                  }
+                }
+              },
+              centering: { type: "string" },
+              corners: { type: "string" },
+              edges: { type: "string" },
+              surface: { type: "string" },
+              overall_preservation: { type: "string" }
+            }
+          },
           serial_number: { type: "string" },
           mint_mark: { type: "string" },
           artist_signature: { type: "string" },
