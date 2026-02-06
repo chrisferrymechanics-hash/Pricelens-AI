@@ -87,8 +87,8 @@ export default function Pricing() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
-        {/* Header */}
-        <div className="text-center mb-12">
+      {/* Header */}
+      <div className="text-center mb-12">
           <Link to={createPageUrl('Home')}>
             <Button variant="ghost" className="mb-6 text-slate-400 hover:text-white">
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -107,10 +107,10 @@ export default function Pricing() {
             <h1 className="text-4xl font-bold text-white mb-3">Choose Your Plan</h1>
             <p className="text-slate-400 text-lg">Get the perfect plan for your needs</p>
           </motion.div>
-        </div>
+      </div>
 
-        {/* Pricing Cards */}
-        <div className="grid md:grid-cols-3 gap-6">
+      {/* Pricing Cards */}
+      <div className="grid md:grid-cols-3 gap-6">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
@@ -173,13 +173,12 @@ export default function Pricing() {
               </Button>
             </motion.div>
           ))}
-        </div>
+      </div>
 
-        {/* FAQ or Additional Info */}
-        <div className="mt-12 text-center text-slate-400 text-sm">
-          <p>All plans include secure payments powered by Stripe</p>
-          <p className="mt-2">Test mode: Use card 4242 4242 4242 4242 for testing</p>
-        </div>
+      {/* FAQ or Additional Info */}
+      <div className="mt-12 text-center text-slate-400 text-sm">
+        <p>All plans include secure payments powered by Stripe</p>
+        <p className="mt-2">Test mode: Use card 4242 4242 4242 4242 for testing</p>
       </div>
     </div>
   );
