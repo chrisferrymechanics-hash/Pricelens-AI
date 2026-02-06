@@ -95,17 +95,22 @@ export default function CollectiblesResults({ result, onBack }) {
         </Button>
         <div className="flex-1">
           {/* Images */}
-          <div className="flex gap-2 mb-3">
+          <div className="flex gap-2 mb-3 overflow-x-auto">
             {result.front_image_url && (
-              <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-700">
-                <img src={result.front_image_url} alt="Front" className="w-full h-full object-cover" />
+              <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-700 flex-shrink-0">
+                <img src={result.front_image_url} alt="Image 1" className="w-full h-full object-cover" />
               </div>
             )}
             {result.back_image_url && (
-              <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-700">
-                <img src={result.back_image_url} alt="Back" className="w-full h-full object-cover" />
+              <div className="w-16 h-16 rounded-lg overflow-hidden border border-slate-700 flex-shrink-0">
+                <img src={result.back_image_url} alt="Image 2" className="w-full h-full object-cover" />
               </div>
             )}
+            {result.additional_image_urls?.map((url, i) => (
+              <div key={i} className="w-16 h-16 rounded-lg overflow-hidden border border-slate-700 flex-shrink-0">
+                <img src={url} alt={`Image ${i + 3}`} className="w-full h-full object-cover" />
+              </div>
+            ))}
           </div>
           
           <div className="flex items-center gap-2 mb-2">
@@ -207,6 +212,11 @@ export default function CollectiblesResults({ result, onBack }) {
         </div>
       </div>
 
+      {/* Multi-Service Grading Estimates */}
+      {result.grading_estimates && result.grading_estimates.length > 0 && (
+        <GradingEstimates estimates={result.grading_estimates} />
+      )}
+
       {/* Grading Standards */}
       {result.grading_standards && (
         <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30">
@@ -240,17 +250,19 @@ export default function CollectiblesResults({ result, onBack }) {
         <div className="p-4 rounded-xl bg-slate-800/50 border border-slate-700/50">
           <h3 className="text-sm font-semibold text-white mb-3 flex items-center gap-2">
             <Clock className="w-4 h-4 text-emerald-400" />
-            Recent Sales History
+            Recent Verified Sales
           </h3>
           <div className="space-y-2">
             {result.historical_sales.map((sale, i) => (
               <div key={i} className="flex items-center justify-between p-2 rounded-lg bg-slate-900/50">
                 <div className="flex-1">
                   <div className="text-sm text-white font-medium">${sale.price?.toFixed(0)}</div>
-                  <div className="text-xs text-slate-500 flex items-center gap-2">
+                  <div className="text-xs text-slate-500 flex items-center gap-2 flex-wrap">
                     <Calendar className="w-3 h-3" />
-                    {sale.date} • {sale.platform}
-                    {sale.grade && ` • Grade: ${sale.grade}`}
+                    {sale.date}
+                    {sale.grading_service && ` • ${sale.grading_service}`}
+                    {sale.grade && ` ${sale.grade}`}
+                    • {sale.platform}
                   </div>
                 </div>
                 {sale.url && (

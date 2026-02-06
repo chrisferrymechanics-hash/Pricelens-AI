@@ -229,7 +229,7 @@ export default function Home() {
     setCollectibleResult(null);
   };
 
-  const handleCollectiblesCapture = async (frontFile, backFile) => {
+  const handleCollectiblesCapture = async (files) => {
     if (!canEvaluate()) {
       alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
       return;
@@ -237,65 +237,71 @@ export default function Home() {
     
     setIsProcessing(true);
     
-    const { file_url: frontUrl } = await base44.integrations.Core.UploadFile({ file: frontFile });
-    let backUrl = null;
-    if (backFile) {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: backFile });
-      backUrl = file_url;
-    }
-    
-    const fileUrls = backUrl ? [frontUrl, backUrl] : [frontUrl];
+    // Upload all images
+    const uploadPromises = files.map(file => 
+      base44.integrations.Core.UploadFile({ file })
+    );
+    const uploadResults = await Promise.all(uploadPromises);
+    const fileUrls = uploadResults.map(result => result.file_url);
     
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are an expert collectibles appraiser with access to PSA, PCGS, NGC, CGC, and other major grading services' databases. Analyze ${backUrl ? 'both the FRONT and BACK images' : 'this image'} of a collectible item.
+      prompt: `You are a professional collectibles appraiser with expertise in ALL major grading services. Analyze these ${fileUrls.length} images comprehensively.
 
-    STEP 1: IMAGE RECOGNITION - EXTRACT SPECIFIC DETAILS:
-    Look carefully at the images and identify:
-    - Serial numbers, certification numbers, or unique identifiers (look at edges, backs, margins)
-    - Mint marks, designer initials, or manufacturer stamps
-    - Artist signatures or autographs (examine corners, backs, borders)
-    - Year/date markings (any visible dates on the item)
-    - Edition numbers or variant identifiers
-    - Grade labels if already professionally graded
+    STEP 1: MULTI-ANGLE IMAGE ANALYSIS
+    Examine ALL provided images from different angles:
+    - Extract serial numbers, certification codes, unique identifiers
+    - Identify mint marks, artist signatures, autographs
+    - Check for existing grade labels or authentication marks
+    - Assess condition from all visible angles
+    - Note any defects, wear, or damage visible in any image
 
-    STEP 2: IDENTIFY THE COLLECTIBLE:
-    - Exact name/title of the item
-    - Collectible type (coin, stamp, comic, trading_card, antique, memorabilia, other)
-    - Mint/publisher/manufacturer
-    - Edition, series, or variant
-    - Any special markings, errors, or distinguishing features
+    STEP 2: IDENTIFY & CATEGORIZE
+    - Exact item name/title
+    - Collectible type (coin, stamp, comic, trading_card, antique, memorabilia)
+    - Manufacturer/publisher/mint
+    - Year, edition, series, variant
+    - Key distinguishing features or errors
 
-    STEP 3: EXTERNAL DATABASE LOOKUP:
-    Search PSA, PCGS, NGC, CGC, Heritage Auctions, eBay sold listings, and specialized databases for:
-    - Official grading standards for this specific item
-    - Historical sales data (recent sales with dates, prices, grades, platforms)
-    - Population reports (how many graded at each level)
-    - Recommended grading service for this type of collectible
+    STEP 3: DETERMINE APPROPRIATE GRADING SERVICES
+    Based on the collectible type, identify ALL relevant grading services:
+    - Trading Cards: PSA, BGS (Beckett), SGC, CGC Cards
+    - Coins: PCGS, NGC, ANACS, ICG
+    - Comics: CGC, CBCS
+    - Stamps: PSE, APS
+    - Autographs: PSA/DNA, JSA, BAS
 
-    STEP 4: GRADING STANDARDS:
-    Based on the database information, provide:
-    - Which grading service is best (PSA for cards, PCGS for coins, CGC for comics, etc.)
-    - Their grading scale (e.g., PSA 1-10, PCGS 1-70, CGC 0.5-10.0)
-    - Estimated grade based on visible condition
-    - Grading criteria that apply to this item
+    STEP 4: MULTI-SERVICE GRADING ESTIMATES
+    For EACH applicable grading service, provide:
+    - Service name (PSA, BGS, CGC, PCGS, NGC, etc.)
+    - Grading scale used (PSA 1-10, BGS 1-10 with subgrades, PCGS 1-70, CGC 0.5-10)
+    - Estimated grade based on condition analysis
+    - Numeric grade value
+    - Subgrades if applicable (BGS: centering, corners, edges, surface)
+    - Specific notes on why this grade was assigned
 
-    STEP 5: RARITY & AUTHENTICITY:
-    - Rarity level and score (1-10)
-    - Key identifiers affecting rarity
-    - Authenticity confidence (0-100%) with specific notes
+    STEP 5: DATABASE & MARKET RESEARCH
+    Search PSA CardFacts, BGS Population Report, PCGS CoinFacts, NGC Census, CGC Census, Heritage Auctions, eBay sold listings, COMC, PWCC:
+    - Recent sales with SPECIFIC dates, prices, grades, and grading services
+    - Population data for each grade level
+    - Price trends by grade
+    - Record of sales from last 6 months minimum
 
-    STEP 6: VALUE ESTIMATION:
-    Using historical sales data from databases:
-    - Estimated value range (ungraded)
-    - Estimated value range (if professionally graded)
-    - Factor in the specific serial number, mint mark, or signature if rare
+    STEP 6: COMPREHENSIVE VALUATION
+    - Ungraded value range
+    - Value range at each major grade level (e.g., PSA 8, PSA 9, PSA 10)
+    - Comparison across different grading services
+    - Historical sales data supporting these valuations
 
-    STEP 7: TRADING PLATFORMS (TOP 5):
-    - Specialized platforms for this collectible type with URLs
-    - Recent price ranges from actual sales
-    - Mark specialized platforms with is_specialized: true
+    STEP 7: AUTHENTICITY & RARITY
+    - Authenticity confidence (0-100%)
+    - Rarity assessment with justification
+    - Population reports from grading registries
+    - Key identifiers that affect value
 
-    Search the internet extensively for ALL this information. Be thorough and specific with USD prices and dates.`,
+    STEP 8: SPECIALIZED TRADING PLATFORMS
+    List top platforms specific to this collectible type with current prices and URLs.
+
+    Be extremely thorough - use all available online databases and marketplaces.`,
       add_context_from_internet: true,
       file_urls: fileUrls,
       response_json_schema: {
@@ -319,35 +325,42 @@ export default function Home() {
               notes: { type: "string" }
             }
           },
-          grading_service: { type: "string" },
-          grading_standards: {
-            type: "object",
-            properties: {
-              service: { type: "string" },
-              scale: { type: "string" },
-              estimated_grade: { type: "string" },
-              criteria: { type: "string" }
+          grading_estimates: {
+            type: "array",
+            items: {
+              type: "object",
+              properties: {
+                service: { type: "string" },
+                scale: { type: "string" },
+                estimated_grade: { type: "string" },
+                numeric_grade: { type: "number" },
+                subgrades: { type: "object" },
+                notes: { type: "string" }
+              }
             }
           },
+          grading_service: { type: "string" },
+          grading_recommendation: { type: "string" },
           historical_sales: {
             type: "array",
-            maxItems: 5,
+            maxItems: 10,
             items: {
               type: "object",
               properties: {
                 date: { type: "string" },
                 price: { type: "number" },
                 grade: { type: "string" },
+                grading_service: { type: "string" },
                 platform: { type: "string" },
                 url: { type: "string" }
               }
             }
           },
-          grading_recommendation: { type: "string" },
           estimated_value_low: { type: "number" },
           estimated_value_high: { type: "number" },
           graded_value_low: { type: "number" },
           graded_value_high: { type: "number" },
+          value_by_grade: { type: "object" },
           trading_platforms: {
             type: "array",
             maxItems: 5,
@@ -369,8 +382,9 @@ export default function Home() {
 
     const finalResult = {
       ...response,
-      front_image_url: frontUrl,
-      back_image_url: backUrl
+      front_image_url: fileUrls[0],
+      back_image_url: fileUrls[1] || null,
+      additional_image_urls: fileUrls.slice(2)
     };
 
     await base44.entities.PriceEvaluation.create(finalResult);
