@@ -32,9 +32,7 @@ function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 })
         <span>-</span>
         <TrendingUp className="w-3 h-3" />${highPrice.toFixed(0)}
       </div>
-      </div>
     </motion.div>
-    </PullToRefresh>
   );
 }
 
@@ -204,6 +202,7 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
         category={result.category}
         onSelectItem={handleSelectSimilarItem}
       />
-    </motion.div>
+      </motion.div>
+    </PullToRefresh>
   );
 }
