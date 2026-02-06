@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import GradingEstimates from './GradingEstimates';
 import PullToRefresh from './PullToRefresh';
 import ConditionDetails from './ConditionDetails';
+import SellingAssistant from './SellingAssistant';
 
 function RarityBadge({ rarity, score }) {
   const rarityConfig = {
@@ -316,6 +317,9 @@ export default function CollectiblesResults({ result, onBack }) {
           <p className="text-sm text-slate-400">{result.grading_recommendation}</p>
         </div>
       )}
+
+      {/* AI Selling Assistant */}
+      <SellingAssistant result={result} />
 
       {/* Trading Platforms */}
       {result.trading_platforms && result.trading_platforms.length > 0 && (

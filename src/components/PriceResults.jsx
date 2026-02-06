@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
 import ConditionDetails from './ConditionDetails';
 import PullToRefresh from './PullToRefresh';
+import SellingAssistant from './SellingAssistant';
 
 function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 }) {
   const avgPrice = (lowPrice + highPrice) / 2;
@@ -180,6 +181,9 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
           </div>
         </div>
       )}
+
+      {/* AI Selling Assistant */}
+      <SellingAssistant result={result} />
 
       {/* Sell Recommendations */}
       {result.sell_recommendations?.length > 0 && (
