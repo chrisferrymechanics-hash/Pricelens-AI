@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { User, Trash2, AlertTriangle, Crown, CreditCard } from 'lucide-react';
+import { User, Trash2, AlertTriangle, Crown, CreditCard, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
@@ -10,11 +10,27 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [darkMode, setDarkMode] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
     base44.auth.me().then(setUser);
+    
+    // Load theme preference
+    const saved = localStorage.getItem('theme-mode');
+    if (saved) {
+      setDarkMode(saved === 'dark');
+      document.documentElement.style.colorScheme = saved;
+    }
   }, []);
+
+  const handleThemeToggle = () => {
+    const newMode = !darkMode;
+    setDarkMode(newMode);
+    const mode = newMode ? 'dark' : 'light';
+    localStorage.setItem('theme-mode', mode);
+    document.documentElement.style.colorScheme = mode;
+  };
 
   const handleDeleteAccount = async () => {
     setIsDeleting(true);
@@ -41,6 +57,35 @@ export default function Settings() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
+        {/* Theme Toggle */}
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              {darkMode ? (
+                <Moon className="w-5 h-5 text-slate-400" />
+              ) : (
+                <Sun className="w-5 h-5 text-slate-400" />
+              )}
+              <div>
+                <div className="text-sm font-medium text-white">Theme</div>
+                <div className="text-xs text-slate-400">{darkMode ? 'Dark' : 'Light'}</div>
+              </div>
+            </div>
+            <button
+              onClick={handleThemeToggle}
+              className={`relative inline-flex h-8 w-14 items-center rounded-full transition-colors ${
+                darkMode ? 'bg-cyan-600' : 'bg-slate-700'
+              }`}
+            >
+              <span
+                className={`inline-block h-6 w-6 transform rounded-full bg-white transition-transform ${
+                  darkMode ? 'translate-x-7' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
         {/* Profile Section */}
         <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-6">
           <div className="flex items-center gap-4 mb-4">
