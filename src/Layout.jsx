@@ -24,8 +24,8 @@ export default function Layout({ children, currentPageName }) {
       {/* Safe area top */}
       <div className="h-[env(safe-area-inset-top)]" />
       
-      {/* Main content with bottom padding for nav */}
-      <div className="pb-20">
+      {/* Main content with bottom padding for nav (64px nav + safe area) */}
+      <div style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom))' }}>
         {isTabRoute ? <TabContainer /> : children}
       </div>
 

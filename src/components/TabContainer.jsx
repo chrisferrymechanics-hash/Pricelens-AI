@@ -15,10 +15,24 @@ const PAGE_COMPONENTS = {
 export default function TabContainer() {
   const location = useLocation();
   const [mountedPages, setMountedPages] = React.useState(new Set([location.pathname]));
+  const prevPathRef = React.useRef(location.pathname);
+  
+  // Tab order for direction detection
+  const tabOrder = ['/', '/Home', '/History', '/Settings'];
+  
+  // Determine navigation direction
+  const getDirection = () => {
+    const prevIndex = tabOrder.indexOf(prevPathRef.current);
+    const currentIndex = tabOrder.indexOf(location.pathname);
+    return currentIndex > prevIndex ? 1 : -1; // 1 = forward, -1 = backward
+  };
+  
+  const direction = getDirection();
   
   // Mount new pages but never unmount
   React.useEffect(() => {
     setMountedPages(prev => new Set([...prev, location.pathname]));
+    prevPathRef.current = location.pathname;
   }, [location.pathname]);
 
   return (
@@ -40,9 +54,9 @@ export default function TabContainer() {
               {isActive && (
                 <motion.div
                   key={path}
-                  initial={{ opacity: 0, x: 20 }}
+                  initial={{ opacity: 0, x: direction * 20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
+                  exit={{ opacity: 0, x: direction * -20 }}
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
                 >
                   <PageComponent />

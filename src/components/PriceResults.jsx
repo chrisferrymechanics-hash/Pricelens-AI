@@ -31,7 +31,8 @@ function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 })
         <span>-</span>
         <TrendingUp className="w-3 h-3" />${highPrice.toFixed(0)}
       </div>
-    </motion.div>
+      </motion.div>
+    </PullToRefresh>
   );
 }
 
@@ -73,6 +74,13 @@ function RecommendationItem({ rec, type, index }) {
 export default function PriceResults({ result, onBack, onSearchSimilar }) {
   if (!result) return null;
 
+  const handleRefresh = async () => {
+    // Re-trigger search for same item
+    if (result.search_query) {
+      await onSearchSimilar(result.search_query);
+    }
+  };
+
   const handleSelectSimilarItem = (item) => {
     if (onSearchSimilar) {
       onSearchSimilar(item.name);
@@ -80,11 +88,12 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
+    <PullToRefresh onRefresh={handleRefresh}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-6"
+      >
       {/* Header */}
       <div className="flex items-start gap-4">
         <Button

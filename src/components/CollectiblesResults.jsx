@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GradingEstimates from './GradingEstimates';
+import PullToRefresh from './PullToRefresh';
 
 function RarityBadge({ rarity, score }) {
   const rarityConfig = {
@@ -78,12 +79,18 @@ function TradingPlatformItem({ platform, index }) {
 export default function CollectiblesResults({ result, onBack }) {
   if (!result) return null;
 
+  const handleRefresh = async () => {
+    // Placeholder - refresh would re-analyze the images
+    console.log('Refresh collectible analysis');
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
+    <PullToRefresh onRefresh={handleRefresh}>
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="space-y-6"
+      >
       {/* Header */}
       <div className="flex items-start gap-4">
         <Button
@@ -299,6 +306,7 @@ export default function CollectiblesResults({ result, onBack }) {
           </div>
         </div>
       )}
-    </motion.div>
+      </motion.div>
+    </PullToRefresh>
   );
 }

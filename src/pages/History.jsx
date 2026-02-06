@@ -6,6 +6,7 @@ import { Clock, Search, Camera, Gem, ArrowLeft, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import PullToRefresh from '@/components/PullToRefresh';
 
 export default function History() {
   const { data: evaluations = [], isLoading, refetch } = useQuery({
@@ -14,7 +15,6 @@ export default function History() {
   });
 
   const [deletedIds, setDeletedIds] = React.useState(new Set());
-  const [isRefreshing, setIsRefreshing] = React.useState(false);
 
   const handleDelete = async (id) => {
     // Optimistic update
@@ -30,12 +30,6 @@ export default function History() {
         return newSet;
       });
     }
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refetch();
-    setIsRefreshing(false);
   };
 
   const visibleEvaluations = evaluations.filter(item => !deletedIds.has(item.id));
@@ -80,31 +74,9 @@ export default function History() {
           <p className="text-slate-500 text-sm mt-1">Your evaluations will appear here</p>
         </div>
       ) : (
-        <motion.div
-          drag="y"
-          dragConstraints={{ top: 0, bottom: 0 }}
-          dragElastic={0.2}
-          onDragEnd={(e, info) => {
-            if (info.offset.y > 150) {
-              handleRefresh();
-            }
-          }}
-          className="space-y-3 relative"
-        >
-          {isRefreshing && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute -top-12 left-1/2 -translate-x-1/2"
-            >
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                className="w-6 h-6 border-2 border-slate-700 border-t-cyan-400 rounded-full"
-              />
-            </motion.div>
-          )}
-          {visibleEvaluations.map((item, index) => (
+        <PullToRefresh onRefresh={refetch}>
+          <div className="space-y-3">
+            {visibleEvaluations.map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, y: 10 }}
@@ -173,8 +145,9 @@ export default function History() {
                 </Button>
               </div>
             </motion.div>
-          ))}
-        </motion.div>
+            ))}
+          </div>
+        </PullToRefresh>
       )}
     </div>
   );
