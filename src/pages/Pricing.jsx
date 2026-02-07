@@ -26,7 +26,7 @@ const plans = [
     name: 'Premium',
     price: '$9.99',
     period: '/month',
-    priceId: 'price_1SurPv9xl5cTR0zgbFD5J3CW',
+    priceId: 'price_1Sy3wNIG0oshJ31B9nAoGQiJ',
     description: 'Unlimited evaluations for power users',
     features: [
       'Unlimited evaluations',
@@ -42,7 +42,7 @@ const plans = [
   {
     name: 'Credit Pack',
     price: '$4.99',
-    priceId: 'price_1SurPw9xl5cTR0zgFBBza9DP',
+    priceId: 'price_1Sy3wNIG0oshJ31BA58efeTq',
     description: 'Pay as you go with credits',
     features: [
       '10 evaluation credits',
