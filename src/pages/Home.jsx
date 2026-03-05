@@ -143,27 +143,27 @@ export default function Home() {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     
     const analysisResult = await analyzeWithAI(
-      `Analyze this image and identify the item. CAREFULLY EXAMINE THE CONDITION by looking for:
-      - Scratches, scuffs, or surface damage
-      - Dents, cracks, or structural damage
-      - Discoloration, stains, or fading
-      - Signs of wear and tear (worn edges, loose parts)
-      - Missing components or accessories
-      - Overall cleanliness and maintenance level
-      
-      Provide a detailed condition assessment with:
-      - condition_score (1-10, where 10 is mint/perfect)
-      - condition_details including: summary, specific defects found (type, severity, location, price impact), wear level, functionality assessment, cosmetic rating (1-10), and completeness
-      
-      Then search the internet for current market prices. ADJUST PRICES BASED ON THE CONDITION YOU OBSERVED:
-      1. Item name and description
-      2. NEW retail prices (price range)
-      3. SECONDHAND/USED prices - adjust based on condition defects found
-      4. AUCTION prices - factor in condition for realistic auction estimates
-      5. TOP 5 best platforms to BUY this item - PRIORITIZE LOCAL STORES AND MARKETPLACES FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then national/online options. Include price ranges and direct URLs.
-      6. TOP 5 best platforms to SELL this item - PRIORITIZE LOCAL OPTIONS FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then online marketplaces. Include expected prices adjusted for condition, fees, time to sell, and URLs.
-      
-      Mark each recommendation with is_local: true/false. Be specific with price ranges in USD. Include actual working URLs.`,
+      `You are an expert item appraiser and resale market analyst. Analyse this image thoroughly.
+
+STEP 1 — ITEM IDENTIFICATION:
+Identify the exact item: brand, model, variant, year if visible. Be as specific as possible.
+
+STEP 2 — CONDITION ASSESSMENT (examine carefully):
+Look for: scratches, scuffs, dents, cracks, discoloration, stains, fading, worn edges, loose parts, missing accessories, signs of repair or modification, overall cleanliness.
+Score condition 1–10 (10 = mint/perfect, 7 = good used, 5 = fair, 3 = poor but functional, 1 = heavily damaged).
+Document every defect with type, severity, location, and estimated price impact.
+
+STEP 3 — MARKET RESEARCH (search the internet for current prices):
+Find REAL current prices for this exact item. Adjust ALL prices downward based on the condition defects observed.
+- New retail price range (from major retailers today)
+- Secondhand/used price range (eBay, Mercari, FB Marketplace — condition-adjusted)
+- Auction price range (eBay auctions, estate sales — condition-adjusted)
+
+STEP 4 — BUY & SELL RECOMMENDATIONS:
+TOP 5 platforms to BUY this item — ${userLocation ? `PRIORITISE local stores/marketplaces near coordinates (${userLocation.lat}, ${userLocation.lng}) first, then` : ''} national/online options. Include current price ranges and direct URLs.
+TOP 5 platforms to SELL this item — ${userLocation ? `PRIORITISE local options near coordinates (${userLocation.lat}, ${userLocation.lng}) first, then` : ''} online marketplaces. Include condition-adjusted expected prices, seller fees, typical days-to-sell, and URLs.
+
+Mark each with is_local: true/false. Prices in USD. Include real, working URLs.`,
       file_url
     );
 
