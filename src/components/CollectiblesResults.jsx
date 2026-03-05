@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock, Info } from 'lucide-react';
+import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock, Info, FileText } from 'lucide-react';
+import CertificateOfAuthenticity from './CertificateOfAuthenticity';
 import { Button } from '@/components/ui/button';
 import GradingEstimates from './GradingEstimates';
 import PullToRefresh from './PullToRefresh';
