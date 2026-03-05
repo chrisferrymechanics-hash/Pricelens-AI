@@ -73,12 +73,12 @@ export default function History() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
-              className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-4 hover:border-slate-600 transition-colors"
+              className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 hover:border-slate-600 transition-colors"
             >
-              <div className="flex gap-3">
+              <div className="flex gap-2 items-center">
                 {/* Image or Icon */}
                 {item.image_url || item.front_image_url ? (
-                  <div className="w-14 h-14 rounded-lg overflow-hidden flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
                     <img 
                       src={item.front_image_url || item.image_url} 
                       alt={item.item_name} 
@@ -86,13 +86,13 @@ export default function History() {
                     />
                   </div>
                 ) : (
-                  <div className="w-14 h-14 rounded-lg bg-slate-700/50 flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 rounded-lg bg-slate-700/50 flex items-center justify-center flex-shrink-0">
                     {item.collectible_type ? (
-                      <Gem className="w-6 h-6 text-amber-400" />
+                      <Gem className="w-5 h-5 text-amber-400" />
                     ) : item.search_query ? (
-                      <Search className="w-6 h-6 text-purple-400" />
+                      <Search className="w-5 h-5 text-purple-400" />
                     ) : (
-                      <Camera className="w-6 h-6 text-cyan-400" />
+                      <Camera className="w-5 h-5 text-cyan-400" />
                     )}
                   </div>
                 )}
