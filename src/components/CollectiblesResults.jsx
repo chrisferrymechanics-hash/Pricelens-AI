@@ -168,6 +168,27 @@ export default function CollectiblesResults({ result, onBack }) {
       {/* Authenticity */}
       <AuthenticityIndicator authenticity={result.authenticity} />
 
+      {/* Certificate Button */}
+      <button
+        onClick={() => setShowCert(true)}
+        className="w-full flex items-center justify-between p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500/20 transition-colors"
+      >
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-emerald-500/15">
+            <FileText className="w-5 h-5 text-emerald-400" />
+          </div>
+          <div className="text-left">
+            <div className="text-sm font-semibold text-white">Certificate of Authenticity</div>
+            <div className="text-xs text-slate-400">Printable itemized assessment report with sources</div>
+          </div>
+        </div>
+        <Shield className="w-4 h-4 text-emerald-400" />
+      </button>
+
+      {showCert && (
+        <CertificateOfAuthenticity result={result} onClose={() => setShowCert(false)} />
+      )}
+
       {/* Extracted Details */}
       {(result.serial_number || result.mint_mark || result.artist_signature || result.year || result.edition) && (
         <div className="p-4 rounded-xl bg-cyan-500/10 border border-cyan-500/30">
