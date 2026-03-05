@@ -195,15 +195,25 @@ Mark each with is_local: true/false. Prices in USD. Include real, working URLs.`
     setIsProcessing(true);
     
     const analysisResult = await analyzeWithAI(
-      `Search the internet for "${query}" and provide current market pricing information:
-      1. Full product name and brief description
-      2. NEW retail prices (price range from major retailers)
-      3. SECONDHAND/USED prices from marketplaces like eBay, Facebook Marketplace, Craigslist, Mercari
-      4. AUCTION prices from eBay auctions, estate sales, auction houses
-      5. TOP 5 best platforms to BUY this item - PRIORITIZE LOCAL STORES AND MARKETPLACES FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then national/online options. Include price ranges and direct URLs.
-      6. TOP 5 best platforms to SELL this item - PRIORITIZE LOCAL OPTIONS FIRST${userLocation ? ` (user location: ${userLocation.lat}, ${userLocation.lng})` : ''}, then online marketplaces. Include expected prices, seller fees, typical time to sell, and URLs.
-      
-      Mark each recommendation with is_local: true/false. Search for real, current market prices. Be specific with price ranges in USD. Include actual working URLs.`
+      `You are an expert price researcher and resale market analyst. Search the internet for "${query}" and provide a comprehensive, data-driven pricing report.
+
+STEP 1 — ITEM IDENTIFICATION:
+Identify the exact product from the search query: full brand, model, variant, year/generation. If ambiguous, use the most common/popular version.
+
+STEP 2 — MARKET PRICES (search right now for real current prices):
+- NEW retail price range: check Amazon, Best Buy, Walmart, manufacturer website, major retailers
+- SECONDHAND/USED price range: check eBay sold listings, Mercari, Facebook Marketplace, Craigslist — provide realistic used price range
+- AUCTION price range: eBay auction results, estate sale platforms
+
+STEP 3 — BUY RECOMMENDATIONS (Top 5):
+${userLocation ? `PRIORITISE local stores/marketplaces near coordinates (${userLocation.lat}, ${userLocation.lng}) first, then national/online options.` : 'Include both local marketplace options and major online retailers.'}
+For each: platform name, current price range, direct URL, mark is_local true/false.
+
+STEP 4 — SELL RECOMMENDATIONS (Top 5):
+${userLocation ? `PRIORITISE local selling options near coordinates (${userLocation.lat}, ${userLocation.lng}) first.` : 'Include local and online selling options.'}
+For each: platform, expected sale price, seller fees, typical days-to-sell, direct URL, mark is_local true/false.
+
+Use real current market data. Prices in USD. Include actual working URLs.`
     );
 
     const finalResult = {
