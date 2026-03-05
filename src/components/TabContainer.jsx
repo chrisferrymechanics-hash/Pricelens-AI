@@ -14,60 +14,53 @@ const PAGE_COMPONENTS = {
   '/Settings': Settings,
 };
 
+// Normalize path so / and /Home are treated as the same tab
+function normalizePath(path) {
+  return path === '/' ? '/Home' : path;
+}
+
+const TAB_ORDER = ['/Home', '/History', '/Marketplace', '/Settings'];
+
 export default function TabContainer() {
   const location = useLocation();
-  const [mountedPages, setMountedPages] = React.useState(new Set([location.pathname]));
-  const prevPathRef = React.useRef(location.pathname);
-  
-  // Tab order for direction detection
-  const tabOrder = ['/', '/Home', '/History', '/Marketplace', '/Settings'];
-  
-  // Determine navigation direction
-  const getDirection = () => {
-    const prevIndex = tabOrder.indexOf(prevPathRef.current);
-    const currentIndex = tabOrder.indexOf(location.pathname);
-    return currentIndex > prevIndex ? 1 : -1; // 1 = forward, -1 = backward
-  };
-  
-  const direction = getDirection();
-  
-  // Mount new pages but never unmount
+  const currentPath = normalizePath(location.pathname);
+
+  const [mountedPages, setMountedPages] = React.useState(new Set([currentPath]));
+  const [direction, setDirection] = React.useState(1);
+  const prevPathRef = React.useRef(currentPath);
+
   React.useEffect(() => {
-    setMountedPages(prev => new Set([...prev, location.pathname]));
-    prevPathRef.current = location.pathname;
-  }, [location.pathname]);
+    const prevIndex = TAB_ORDER.indexOf(prevPathRef.current);
+    const currentIndex = TAB_ORDER.indexOf(currentPath);
+    if (prevIndex !== -1 && currentIndex !== -1) {
+      setDirection(currentIndex >= prevIndex ? 1 : -1);
+    }
+    setMountedPages(prev => new Set([...prev, currentPath]));
+    prevPathRef.current = currentPath;
+  }, [currentPath]);
 
   return (
-    <>
-      {Array.from(mountedPages).map((path) => {
-        const PageComponent = PAGE_COMPONENTS[path];
-        if (!PageComponent) return null;
-        
-        const isActive = location.pathname === path;
-        
-        return (
-          <div
-            key={path}
-            style={{
-              display: isActive ? 'block' : 'none',
-            }}
-          >
-            <AnimatePresence mode="wait">
-              {isActive && (
-                <motion.div
-                  key={path}
-                  initial={{ opacity: 0, x: direction * 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: direction * -20 }}
-                  transition={{ duration: 0.2, ease: 'easeInOut' }}
-                >
-                  <PageComponent />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
-        );
-      })}
-    </>
+    <div style={{ position: 'relative' }}>
+      <AnimatePresence initial={false} mode="wait">
+        <motion.div
+          key={currentPath}
+          initial={{ opacity: 0, x: direction * 24 }}
+          animate={{ opacity: 1, x: 0 }}
+          exit={{ opacity: 0, x: direction * -24 }}
+          transition={{ duration: 0.18, ease: 'easeInOut' }}
+        >
+          {Array.from(mountedPages).map((path) => {
+            const PageComponent = PAGE_COMPONENTS[path];
+            if (!PageComponent) return null;
+            const isActive = path === currentPath;
+            return (
+              <div key={path} style={{ display: isActive ? 'block' : 'none' }}>
+                <PageComponent />
+              </div>
+            );
+          })}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }
