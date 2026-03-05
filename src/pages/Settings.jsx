@@ -137,6 +137,11 @@ export default function Settings() {
           </div>
         </div>
 
+        {/* Deal Alerts */}
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-6 mb-6">
+          <SubscriptionsManager />
+        </div>
+
         {/* Danger Zone */}
         <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-4">
