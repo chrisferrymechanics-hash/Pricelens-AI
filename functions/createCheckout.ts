@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import Stripe from 'npm:stripe@17.5.0';
 
 const stripe = new Stripe(Deno.env.get('STRIPE_SECRET_KEY'));
@@ -29,18 +29,12 @@ Deno.serve(async (req) => {
       }, { status: 400 });
     }
 
-    // Fetch the price to determine if it's recurring
     const price = await stripe.prices.retrieve(priceId);
     const isRecurring = price.type === 'recurring';
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
+      line_items: [{ price: priceId, quantity: 1 }],
       mode: isRecurring ? 'subscription' : 'payment',
       success_url: `${req.headers.get('origin') || 'https://your-app.com'}/CheckoutSuccess?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${req.headers.get('origin') || 'https://your-app.com'}/Pricing`,
@@ -52,6 +46,7 @@ Deno.serve(async (req) => {
       }
     });
 
+    console.log('Checkout session created:', session.id, 'for:', user.email);
     return Response.json({ sessionId: session.id, url: session.url });
   } catch (error) {
     console.error('Checkout error:', error);

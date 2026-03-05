@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   try {
@@ -13,53 +13,36 @@ Deno.serve(async (req) => {
     const environment = Deno.env.get('EBAY_ENVIRONMENT') || 'sandbox';
 
     if (!userToken) {
-      return Response.json({
-        error: 'eBay credentials not configured',
-        needs_setup: true
-      }, { status: 400 });
+      return Response.json({ error: 'eBay credentials not configured', needs_setup: true }, { status: 400 });
     }
 
-    // Fetch orders from eBay
-    const ordersUrl = environment === 'production'
-      ? 'https://api.ebay.com/sell/fulfillment/v1/order'
-      : 'https://api.sandbox.ebay.com/sell/fulfillment/v1/order';
+    const baseUrl = environment === 'production'
+      ? 'https://api.ebay.com'
+      : 'https://api.sandbox.ebay.com';
 
-    const response = await fetch(`${ordersUrl}?limit=50&orderIds=`, {
-      headers: {
-        'Authorization': `Bearer ${userToken}`,
-        'Content-Type': 'application/json'
-      }
+    const response = await fetch(`${baseUrl}/sell/fulfillment/v1/order?limit=50`, {
+      headers: { 'Authorization': `Bearer ${userToken}`, 'Content-Type': 'application/json' }
     });
 
     if (!response.ok) {
       const errorData = await response.json();
       console.error('eBay orders fetch failed:', errorData);
-      return Response.json({
-        error: 'Failed to fetch eBay orders',
-        details: errorData
-      }, { status: response.status });
+      return Response.json({ error: 'Failed to fetch eBay orders', details: errorData }, { status: response.status });
     }
 
     const ordersData = await response.json();
     const salesData = [];
 
-    // Process orders and update listings
+    const listings = await base44.entities.MarketplaceListing.filter({
+      created_by: user.email,
+      platform: 'ebay'
+    });
+
     for (const order of ordersData.orders || []) {
       for (const lineItem of order.lineItems || []) {
-        const sku = lineItem.sku;
-        
-        // Find matching listing in database
-        const listings = await base44.entities.MarketplaceListing.filter({
-          created_by: user.email,
-          platform: 'ebay'
-        });
-
-        const matchingListing = listings.find(l => 
-          l.platform_listing_id === lineItem.legacyItemId
-        );
+        const matchingListing = listings.find(l => l.platform_listing_id === lineItem.legacyItemId);
 
         if (matchingListing) {
-          // Update sales data
           await base44.asServiceRole.entities.MarketplaceListing.update(matchingListing.id, {
             quantity_sold: (matchingListing.quantity_sold || 0) + lineItem.quantity,
             status: lineItem.quantity >= (matchingListing.quantity || 1) ? 'sold' : 'active',
@@ -90,9 +73,6 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('eBay sales data error:', error);
-    return Response.json({ 
-      error: 'Failed to fetch eBay sales data', 
-      message: error.message 
-    }, { status: 500 });
+    return Response.json({ error: 'Failed to fetch eBay sales data', message: error.message }, { status: 500 });
   }
 });
