@@ -9,6 +9,7 @@ import KeywordSearch from '@/components/KeywordSearch';
 import PriceResults from '@/components/PriceResults';
 import CollectiblesCapture from '@/components/CollectiblesCapture';
 import CollectiblesResults from '@/components/CollectiblesResults';
+import BulkUpload from '@/components/BulkUpload';
 
 export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
