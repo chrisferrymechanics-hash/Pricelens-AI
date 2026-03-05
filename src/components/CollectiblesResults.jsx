@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Star, AlertTriangle, TrendingUp, ExternalLink, MapPin, Award, Sparkles, Shield, Hash, Calendar, Pen, Clock, Info, FileText } from 'lucide-react';
 import CertificateOfAuthenticity from './CertificateOfAuthenticity';
