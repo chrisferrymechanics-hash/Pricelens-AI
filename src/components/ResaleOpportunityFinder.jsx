@@ -15,23 +15,32 @@ export default function ResaleOpportunityFinder({ result }) {
   const findOpportunities = async () => {
     setLoading(true);
     const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `Search the internet RIGHT NOW for "${itemName}" currently listed for sale BELOW its estimated market value of $${valueLow}–$${valueHigh}.
+      prompt: `You are an expert resale market analyst. Search the internet RIGHT NOW for "${itemName}" currently listed for sale.
 
-Find real active listings on eBay, Facebook Marketplace, Craigslist, Mercari, OfferUp, and other platforms where this exact item is priced under $${valueLow} (a below-market deal).
+MARKET CONTEXT: The estimated market value for this item is $${valueLow}–$${valueHigh}.
 
-Return:
+TASK 1 — UNDERPRICED DEALS (search eBay, Facebook Marketplace, Craigslist, Mercari, OfferUp, Gumtree, Poshmark):
+Find 3–5 REAL, ACTIVE listings priced BELOW $${Math.round(valueLow * 0.85)} (at least 15% below the low estimate). For each:
+- Platform name and listing notes/title snippet
+- Listed price
+- Estimated resale value based on current sold comps
+- Net profit after platform fees (eBay ~13%, Mercari ~10%, Poshmark ~20%, FB Marketplace free)
+- Direct URL to the listing
 
-1. UNDERPRICED DEALS: 3–5 real listings with platform, listed price, estimated resale price, and estimated profit after fees (eBay ~13%, Mercari ~10%, FB Marketplace free). Include a direct URL.
+TASK 2 — FLIP PROFIT SUMMARY:
+Calculate realistic averages across the deals found:
+- Average buy price, average resale price, average net profit
+- Best platform to resell on (considering fees, audience, speed)
+- Typical days-to-sell for this item category
 
-2. RESALE PROFIT SUMMARY: Average buy price, average resale price, average net profit, best platform to resell on, and typical time to sell.
+TASK 3 — VALUE-BOOSTING IMPROVEMENTS (5 suggestions):
+List 5 specific, practical actions to increase resale value for "${itemName}". For each:
+- Clear action title
+- Why this increases value and by how much (e.g. "+$30–$50")
+- Realistic cost estimate
+- 1–3 exact products/supplies to buy: product name, direct Amazon/eBay URL, price range
 
-3. IMPROVEMENT SUGGESTIONS: 3–5 specific, actionable things the seller can do to increase resale value (cleaning, repair, replacement parts, accessories, storage upgrades, etc.). For each:
-   - Title and description
-   - Estimated value increase (e.g. "+$30–$50")
-   - Cost estimate
-   - 1–3 specific parts/supplies with product names, direct purchase URLs (Amazon, eBay, etc.), and price range
-
-Be specific and use real data from the internet.`,
+Focus on improvements with the best ROI. Be specific — name actual products, not generic categories.`,
       add_context_from_internet: true,
       response_json_schema: {
         type: "object",
