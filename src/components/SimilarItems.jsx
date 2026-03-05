@@ -66,17 +66,18 @@ export default function SimilarItems({ itemName, category, onSelectItem }) {
       setError(null);
       
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `Find 4-5 similar alternative items to "${itemName}" (category: ${category || 'general'}). 
-        Search the internet for current competitors and alternatives with their real market prices.
-        
-        For each similar item provide:
-        - Name of the alternative product
-        - Why it's a good alternative (brief reason)
-        - New retail price range
-        - Used/secondhand price range  
-        - How the price compares to the original item (e.g., "20% cheaper", "similar price", "30% more expensive")
-        
-        Focus on popular alternatives that are currently available in the market.`,
+        prompt: `You are a product research expert. Find 4–5 genuinely useful alternatives and comparable items to "${itemName}" (category: ${category || 'general'}).
+
+Search the internet for real, currently-available products with live market prices.
+
+For each alternative provide:
+- Exact product name (brand + model/variant)
+- Why it's a meaningful alternative (specific reason — same use case, better value, upgraded features, easier to find, etc.)
+- New retail price range from major retailers (current prices)
+- Used/secondhand price range from eBay, Mercari, FB Marketplace
+- How it compares price-wise to the original (e.g. "35% cheaper", "similar price", "15% more expensive")
+
+Prioritise alternatives that buyers of "${itemName}" actually search for. Include at least one budget option and one premium option if relevant. Use real current market data.`,
         add_context_from_internet: true,
         response_json_schema: {
           type: "object",
