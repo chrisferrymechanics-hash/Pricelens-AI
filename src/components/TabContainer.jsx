@@ -48,6 +48,7 @@ export default function TabContainer() {
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: direction * -24 }}
           transition={{ duration: 0.18, ease: 'easeInOut' }}
+          style={{ touchAction: 'pan-y', userSelect: 'none' }}
         >
           {Array.from(mountedPages).map((path) => {
             const PageComponent = PAGE_COMPONENTS[path];
