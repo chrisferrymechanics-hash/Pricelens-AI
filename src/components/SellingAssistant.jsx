@@ -20,50 +20,54 @@ export default function SellingAssistant({ result }) {
 
     try {
       const response = await base44.integrations.Core.InvokeLLM({
-        prompt: `You are an expert marketplace consultant helping sellers maximize their sales. Analyze this item and provide comprehensive selling guidance.
+      prompt: `You are a top-tier marketplace consultant who has sold thousands of items. Your goal is to help this seller get the MAXIMUM price in the MINIMUM time.
 
-ITEM DETAILS:
-- Name: ${result.item_name}
-- Description: ${result.item_description}
-- Category: ${result.category || result.collectible_type}
-- Condition Score: ${result.condition_score}/10
-${result.condition_details?.summary ? `- Condition Summary: ${result.condition_details.summary}` : ''}
-${result.rarity ? `- Rarity: ${result.rarity}` : ''}
+      ITEM DETAILS:
+      - Name: ${result.item_name}
+      - Description: ${result.item_description}
+      - Category: ${result.category || result.collectible_type || 'General'}
+      - Condition Score: ${result.condition_score ? `${result.condition_score}/10` : 'Not assessed'}
+      ${result.condition_details?.summary ? `- Condition Notes: ${result.condition_details.summary}` : ''}
+      ${result.rarity ? `- Rarity: ${result.rarity}` : ''}
+      ${result.year ? `- Year: ${result.year}` : ''}
+      ${result.edition ? `- Edition: ${result.edition}` : ''}
+      ${result.key_identifiers?.length ? `- Key Features: ${result.key_identifiers.slice(0, 3).join(', ')}` : ''}
 
-MARKET DATA:
-- New Price Range: $${result.new_price_low || result.estimated_value_low} - $${result.new_price_high || result.estimated_value_high}
-- Used/Secondhand Range: $${result.secondhand_price_low || result.estimated_value_low} - $${result.secondhand_price_high || result.estimated_value_high}
-${result.historical_sales ? `- Recent Sales: ${result.historical_sales.length} transactions analyzed` : ''}
+      MARKET DATA:
+      - New Price: $${result.new_price_low || result.estimated_value_low || '?'} – $${result.new_price_high || result.estimated_value_high || '?'}
+      - Used Price: $${result.secondhand_price_low || result.estimated_value_low || '?'} – $${result.secondhand_price_high || result.estimated_value_high || '?'}
+      ${result.auction_price_low ? `- Auction Range: $${result.auction_price_low} – $${result.auction_price_high}` : ''}
+      ${result.historical_sales?.length ? `- Recent Sales Data: ${result.historical_sales.length} comparable sales on record` : ''}
 
-AVAILABLE PLATFORMS:
-${result.sell_recommendations?.map(p => `- ${p.platform}: ${p.expected_price}`).join('\n') || 'Various platforms available'}
+      PLATFORM INTEL:
+      ${result.sell_recommendations?.map(p => `- ${p.platform}: expected ${p.expected_price}, fees ${p.fees || 'unknown'}, time to sell ${p.time_to_sell || 'unknown'}`).join('\n') || 'Standard marketplaces available'}
 
-Provide detailed, actionable selling advice in these areas:
+      YOUR TASK — give precise, expert advice:
 
-1. PRICING STRATEGY
-- Recommended listing price (be specific with a number)
-- Pricing rationale based on condition and market data
-- Negotiation buffer recommendation
-- Price adjustment timeline
+      1. PRICING STRATEGY
+      - Exact recommended listing price (single number, not a range)  
+      - Why that price (referencing actual market data above)
+      - How much negotiation room to leave
+      - When to drop the price and by how much if no offers
 
-2. LISTING OPTIMIZATION
-- Compelling title (60 chars max)
-- Detailed description (2-3 paragraphs) that highlights value
-- Key features to emphasize
-- Photos/documentation tips
+      2. LISTING OPTIMIZATION
+      - SEO-optimised title (max 60 chars, include brand/model/year/condition keywords)
+      - Compelling 2-paragraph description that converts browsers to buyers — mention the best features, condition highlights, and a subtle urgency trigger
+      - 5 specific features/keywords to highlight
+      - 4 must-have photo angles/shots for maximum click-through
 
-3. PLATFORM SELECTION
-- Best platform for this specific item and why
-- Platform-specific tips (pricing, listing format)
-- Alternative platforms as backup
+      3. PLATFORM SELECTION
+      - Single best platform recommendation with clear reason (audience, fees, speed for this category)
+      - 3 platform-specific tips to optimise the listing there
+      - 2 backup alternatives if primary doesn't sell within 2 weeks
 
-4. SELLING STRATEGY
-- Best time to list (day/season considerations)
-- Expected time to sell
-- Red flags to avoid
-- Quick sale tactics if needed
+      4. SELLING STRATEGY
+      - Best day of week AND time of day to list (data-backed)
+      - Realistic days-to-sell estimate
+      - 3 specific tactics to trigger faster offers (e.g. "Best Offer" enabled, free shipping threshold, bundle deals)
+      - 2 red flags in buyer messages to watch for
 
-Be specific, actionable, and data-driven. Use the actual market data provided.`,
+      Be decisive. Give specific numbers. No vague advice.`,
         response_json_schema: {
           type: "object",
           properties: {
