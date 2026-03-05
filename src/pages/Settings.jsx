@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
 import { User, Trash2, AlertTriangle, Crown, CreditCard, Moon, Sun } from 'lucide-react';
+import SubscriptionsManager from '@/components/SubscriptionsManager';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
