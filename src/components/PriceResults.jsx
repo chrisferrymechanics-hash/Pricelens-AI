@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Package, RefreshCw, Gavel, ShoppingCart, Store, TrendingUp, TrendingDown, ArrowLeft, ExternalLink, AlertTriangle, CheckCircle, Info, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import SimilarItems from './SimilarItems';
+import ResaleOpportunityFinder from './ResaleOpportunityFinder';
 import ConditionDetails from './ConditionDetails';
 import PullToRefresh from './PullToRefresh';
 import SellingAssistant from './SellingAssistant';

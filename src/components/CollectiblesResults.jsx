@@ -6,6 +6,7 @@ import GradingEstimates from './GradingEstimates';
 import PullToRefresh from './PullToRefresh';
 import ConditionDetails from './ConditionDetails';
 import SellingAssistant from './SellingAssistant';
+import ResaleOpportunityFinder from './ResaleOpportunityFinder';
 import MarketplaceQuickList from './MarketplaceQuickList';
 
 function RarityBadge({ rarity, score }) {
