@@ -320,6 +320,9 @@ export default function CollectiblesResults({ result, onBack }) {
         </div>
       )}
 
+      {/* Resale Opportunity Finder */}
+      <ResaleOpportunityFinder result={result} />
+
       {/* AI Selling Assistant */}
       <SellingAssistant result={result} />
 

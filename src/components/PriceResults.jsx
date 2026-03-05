@@ -184,6 +184,9 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
         </div>
       )}
 
+      {/* Resale Opportunity Finder */}
+      <ResaleOpportunityFinder result={result} />
+
       {/* AI Selling Assistant */}
       <SellingAssistant result={result} />
 
