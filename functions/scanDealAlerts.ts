@@ -15,20 +15,23 @@ Deno.serve(async (req) => {
 
     for (const sub of allSubscriptions) {
       // Search the internet for underpriced listings
-      const prompt = `Search the internet RIGHT NOW for active listings of "${sub.keyword}"${sub.max_price ? ` priced under $${sub.max_price}` : ''}.
+      const prompt = `You are a deal-hunting expert scanning resale marketplaces for underpriced bargains. Search eBay, Facebook Marketplace, Craigslist, Mercari, OfferUp, and Gumtree RIGHT NOW for active listings of "${sub.keyword}"${sub.max_price ? ` priced under $${sub.max_price}` : ''}.
 
-Find listings that are priced SIGNIFICANTLY below typical market value (at least 20% below average market price).
+CRITERIA FOR A GOOD DEAL:
+- Listed price is at least 20% below average market value for comparable items in similar condition
+- Item appears genuine and listing looks legitimate
+- Seller has reasonable feedback or verifiable listing details
 
-For each underpriced deal found, provide:
-- The listing title
-- The listing price
-- The estimated market value / typical price
-- The percentage below market value
-- A direct URL to the listing
-- The platform/marketplace name
-- A brief reason why this is a good deal
+For each qualifying deal found, return:
+- Listing title (exact)
+- Listed price
+- Estimated fair market value for that condition
+- % below market value
+- Direct URL to the listing
+- Platform/marketplace name
+- Concise reason why this is a strong deal (mention condition, price gap, seller urgency if visible)
 
-Only return listings that are genuinely underpriced bargains. If no good deals found, return an empty array.`;
+Be selective — only include deals where the profit opportunity is clear and real. If genuinely no deals found, return an empty deals array rather than making up listings.`;
 
       const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
         prompt,
