@@ -66,7 +66,7 @@ export default function History() {
         </div>
       ) : (
         <PullToRefresh onRefresh={refetch}>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {visibleEvaluations.map((item, index) => (
             <motion.div
               key={item.id}
