@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Camera, Search, Sparkles, Gem } from 'lucide-react';
+import { Camera, Search, Sparkles, Gem, Layers } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 import CameraCapture from '@/components/CameraCapture';
