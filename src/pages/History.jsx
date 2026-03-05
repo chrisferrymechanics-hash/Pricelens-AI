@@ -98,32 +98,24 @@ export default function History() {
                 )}
                 
                 {/* Content */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-medium text-white truncate">{item.item_name}</h3>
-                  <div className="flex items-center gap-2 mt-1">
-                    {item.collectible_type && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400">
-                        {item.collectible_type}
-                      </span>
-                    )}
-                    {item.rarity && (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-400 capitalize">
-                        {item.rarity.replace('_', ' ')}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex items-center justify-between mt-2">
-                    <span className="text-xs text-slate-500">
-                      {formatDate(item.created_date)}
-                    </span>
-                    {(item.new_price_low || item.estimated_value_low) && (
-                      <span className="text-sm text-emerald-400 font-medium">
-                        ${(item.estimated_value_low || item.secondhand_price_low || item.new_price_low)?.toFixed(0)} - 
-                        ${(item.estimated_value_high || item.secondhand_price_high || item.new_price_high)?.toFixed(0)}
-                      </span>
-                    )}
-                  </div>
-                </div>
+                 <div className="flex-1 min-w-0">
+                   <div className="flex items-center justify-between gap-2">
+                     <h3 className="font-medium text-white truncate text-sm">{item.item_name}</h3>
+                     {(item.new_price_low || item.estimated_value_low) && (
+                       <span className="text-sm text-emerald-400 font-medium whitespace-nowrap">
+                         ${(item.estimated_value_low || item.secondhand_price_low || item.new_price_low)?.toFixed(0)}–${(item.estimated_value_high || item.secondhand_price_high || item.new_price_high)?.toFixed(0)}
+                       </span>
+                     )}
+                   </div>
+                   <div className="flex items-center gap-2 mt-0.5">
+                     <span className="text-xs text-slate-500">{formatDate(item.created_date)}</span>
+                     {item.collectible_type && (
+                       <span className="text-xs px-1.5 py-0.5 rounded-full bg-amber-500/20 text-amber-400">
+                         {item.collectible_type}
+                       </span>
+                     )}
+                   </div>
+                 </div>
 
                 {/* Delete */}
                 <Button
