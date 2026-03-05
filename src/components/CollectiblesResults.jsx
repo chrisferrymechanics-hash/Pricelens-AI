@@ -82,10 +82,10 @@ function TradingPlatformItem({ platform, index }) {
 }
 
 export default function CollectiblesResults({ result, onBack }) {
+  const [showCert, setShowCert] = React.useState(false);
   if (!result) return null;
 
   const handleRefresh = async () => {
-    // Placeholder - refresh would re-analyze the images
     console.log('Refresh collectible analysis');
   };
 
