@@ -497,6 +497,13 @@ export default function Home() {
                 Collectibles
               </TabsTrigger>
               <TabsTrigger 
+                value="bulk" 
+                className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
+              >
+                <Layers className="w-4 h-4 mr-1" />
+                Bulk
+              </TabsTrigger>
+              <TabsTrigger 
                 value="search" 
                 className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
