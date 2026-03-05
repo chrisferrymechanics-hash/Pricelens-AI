@@ -520,6 +520,10 @@ export default function Home() {
               <CollectiblesCapture onCapture={handleCollectiblesCapture} isProcessing={isProcessing} />
             </TabsContent>
 
+            <TabsContent value="bulk" className="mt-0">
+              <BulkUpload isProcessing={isProcessing} setIsProcessing={setIsProcessing} />
+            </TabsContent>
+
             <TabsContent value="search" className="mt-0">
               <KeywordSearch onSearch={handleKeywordSearch} isProcessing={isProcessing} />
             </TabsContent>
