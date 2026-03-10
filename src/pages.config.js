@@ -54,6 +54,7 @@ import Marketplace from './pages/Marketplace';
 import Pricing from './pages/Pricing';
 import Settings from './pages/Settings';
 import Watchlist from './pages/Watchlist';
+import Portfolio from './pages/Portfolio';
 import __Layout from './Layout.jsx';
 
 
@@ -65,6 +66,7 @@ export const PAGES = {
     "Pricing": Pricing,
     "Settings": Settings,
     "Watchlist": Watchlist,
+    "Portfolio": Portfolio,
 }
 
 export const pagesConfig = {
