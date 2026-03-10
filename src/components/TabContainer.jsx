@@ -8,7 +8,7 @@ import Portfolio from '@/pages/Portfolio';
 import Settings from '@/pages/Settings';
 
 // ─── Tab Navigation Context ──────────────────────────────────────────────────
-// Exposed so child pages can push sub-pages or pop back within the same tab.
+// Exposed so child pages can push/pop sub-pages within the same tab stack.
 
 const TabNavContext = createContext(null);
 
