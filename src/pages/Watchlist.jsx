@@ -31,6 +31,20 @@ export default function Watchlist() {
     onSettled: () => queryClient.invalidateQueries({ queryKey: ['watchlist'] }),
   });
 
+  const updateThresholdMutation = useMutation({
+    mutationFn: ({ id, threshold }) => base44.entities.WatchlistItem.update(id, { alert_threshold: threshold }),
+    onMutate: async ({ id, threshold }) => {
+      await queryClient.cancelQueries({ queryKey: ['watchlist'] });
+      const prev = queryClient.getQueryData(['watchlist']);
+      queryClient.setQueryData(['watchlist'], old => old.map(i => i.id === id ? { ...i, alert_threshold: threshold } : i));
+      return { prev };
+    },
+    onError: (err, vars, context) => {
+      queryClient.setQueryData(['watchlist'], context.prev);
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ['watchlist'] }),
+  });
+
   const formatDate = (dateStr) => {
     if (!dateStr) return 'Never';
     return new Date(dateStr).toLocaleDateString('en-US', {
