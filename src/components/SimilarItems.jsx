@@ -65,7 +65,9 @@ export default function SimilarItems({ itemName, category, onSelectItem }) {
       setIsLoading(true);
       setError(null);
       
-      const response = await base44.integrations.Core.InvokeLLM({
+      let response;
+      try {
+        response = await base44.integrations.Core.InvokeLLM({
         prompt: `You are a product research expert. Find 4–5 genuinely useful alternatives and comparable items to "${itemName}" (category: ${category || 'general'}).
 
 Search the internet for real, currently-available products with live market prices.
@@ -80,6 +82,7 @@ For each alternative provide:
 Prioritise alternatives that buyers of "${itemName}" actually search for. Include at least one budget option and one premium option if relevant. Use real current market data.`,
         add_context_from_internet: true,
         response_json_schema: {
+
           type: "object",
           properties: {
             similar_items: {
@@ -101,7 +104,10 @@ Prioritise alternatives that buyers of "${itemName}" actually search for. Includ
         }
       });
 
-      setSimilarItems(response.similar_items || []);
+        setSimilarItems(response.similar_items || []);
+      } catch (err) {
+        setError(err);
+      }
       setIsLoading(false);
     };
 

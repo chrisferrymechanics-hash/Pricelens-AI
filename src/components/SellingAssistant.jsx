@@ -167,7 +167,7 @@ export default function SellingAssistant({ result }) {
                     </div>
                     <div className="space-y-2">
                       <div className="text-2xl font-bold text-emerald-400">
-                        ${advice.pricing_strategy.recommended_price.toFixed(0)}
+                        {advice.pricing_strategy.recommended_price != null ? `$${Number(advice.pricing_strategy.recommended_price).toFixed(0)}` : '—'}
                       </div>
                       <p className="text-sm text-slate-300">{advice.pricing_strategy.rationale}</p>
                       <div className="grid grid-cols-2 gap-2 mt-2">

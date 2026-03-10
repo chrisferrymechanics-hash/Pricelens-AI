@@ -256,7 +256,8 @@ export default function CollectiblesResults({ result, onBack }) {
         <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30">
           <div className="text-xs text-emerald-400 mb-1">Estimated Value</div>
           <div className="text-xl font-bold text-white">
-            ${result.estimated_value_low?.toFixed(0)} - ${result.estimated_value_high?.toFixed(0)}
+            {result.estimated_value_low != null ? `$${result.estimated_value_low.toFixed(0)}` : '—'}
+            {result.estimated_value_high != null ? ` - $${result.estimated_value_high.toFixed(0)}` : ''}
           </div>
         </div>
         <div className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30">
@@ -265,7 +266,8 @@ export default function CollectiblesResults({ result, onBack }) {
             Graded Value
           </div>
           <div className="text-xl font-bold text-white">
-            ${result.graded_value_low?.toFixed(0)} - ${result.graded_value_high?.toFixed(0)}
+            {result.graded_value_low != null ? `$${result.graded_value_low.toFixed(0)}` : '—'}
+            {result.graded_value_high != null ? ` - $${result.graded_value_high.toFixed(0)}` : ''}
           </div>
         </div>
       </div>
