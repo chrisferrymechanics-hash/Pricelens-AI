@@ -4,14 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Home from '@/pages/Home';
 import History from '@/pages/History';
 import Marketplace from '@/pages/Marketplace';
+import Watchlist from '@/pages/Watchlist';
 import Settings from '@/pages/Settings';
 
-const TAB_ORDER = ['/Home', '/History', '/Marketplace', '/Settings'];
+const TAB_ORDER = ['/Home', '/History', '/Marketplace', '/Watchlist', '/Settings'];
 
 const PAGE_COMPONENTS = {
   '/Home': Home,
   '/History': History,
   '/Marketplace': Marketplace,
+  '/Watchlist': Watchlist,
   '/Settings': Settings,
 };
 

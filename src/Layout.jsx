@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { Home, Clock, Settings, Store } from 'lucide-react';
+import { Home, Clock, Settings, Store, Bookmark } from 'lucide-react';
 import TabContainer from '@/components/TabContainer';
 
 export default function Layout({ children, currentPageName }) {
