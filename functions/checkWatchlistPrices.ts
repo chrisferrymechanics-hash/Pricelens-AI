@@ -51,8 +51,9 @@ Return ONLY the price range as two numbers. Be conservative and accurate. Use US
           ? (item.last_alert_value_low + (item.last_known_value_high || 0)) / 2
           : oldMid;
 
+        const threshold = (item.alert_threshold ?? 10) / 100;
         const shouldAlert = oldMid && newMid && lastAlertMid && (
-          Math.abs(newMid - lastAlertMid) / lastAlertMid >= 0.10 // 10% change threshold
+          Math.abs(newMid - lastAlertMid) / lastAlertMid >= threshold
         );
 
         // Update the watchlist record
