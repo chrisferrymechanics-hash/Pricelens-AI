@@ -89,13 +89,6 @@ export default function Pricing() {
     <div className="max-w-6xl mx-auto px-4 py-12">
       {/* Header */}
       <div className="text-center mb-12">
-          <Link to={createPageUrl('Home')}>
-            <Button variant="ghost" className="mb-6 text-slate-400 hover:text-white">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-          
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
