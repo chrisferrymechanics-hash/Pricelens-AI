@@ -67,6 +67,8 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
   const currentEntry = stack[stack.length - 1];
   const isAtRoot = stack.length === 1;
 
+  if (!hasBeenActive.current) return null;
+
   return (
     <TabNavContext.Provider value={{ push, pop, isAtRoot, stack }}>
       <div
