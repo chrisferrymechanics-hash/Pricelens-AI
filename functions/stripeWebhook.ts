@@ -51,12 +51,12 @@ Deno.serve(async (req) => {
           });
           console.log('User upgraded to premium:', userEmail);
         } else if (session.mode === 'payment') {
-          // Credit pack purchase — add 20 credits
+          // Credit pack purchase — add 10 credits
           const currentCredits = user.credits || 0;
           await base44.asServiceRole.entities.User.update(user.id, {
-            credits: currentCredits + 20
+            credits: currentCredits + 10
           });
-          console.log('Added 20 credits to:', userEmail, 'new total:', currentCredits + 20);
+          console.log('Added 10 credits to:', userEmail, 'new total:', currentCredits + 10);
         }
         break;
       }
