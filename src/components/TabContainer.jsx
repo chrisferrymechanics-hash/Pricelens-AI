@@ -5,15 +5,17 @@ import Home from '@/pages/Home';
 import History from '@/pages/History';
 import Marketplace from '@/pages/Marketplace';
 import Watchlist from '@/pages/Watchlist';
+import Portfolio from '@/pages/Portfolio';
 import Settings from '@/pages/Settings';
 
-const TAB_ORDER = ['/Home', '/History', '/Marketplace', '/Watchlist', '/Settings'];
+const TAB_ORDER = ['/Home', '/History', '/Marketplace', '/Watchlist', '/Portfolio', '/Settings'];
 
 const PAGE_COMPONENTS = {
   '/Home': Home,
   '/History': History,
   '/Marketplace': Marketplace,
   '/Watchlist': Watchlist,
+  '/Portfolio': Portfolio,
   '/Settings': Settings,
 };
 
