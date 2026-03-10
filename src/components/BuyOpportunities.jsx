@@ -24,7 +24,7 @@ export default function BuyOpportunities() {
     onMutate: async (id) => {
       await queryClient.cancelQueries({ queryKey: ['buy-opportunities'] });
       const prev = queryClient.getQueryData(['buy-opportunities']);
-      queryClient.setQueryData(['buy-opportunities'], (old) => old.filter((o) => o.id !== id));
+      queryClient.setQueryData(['buy-opportunities'], (old) => (old ?? []).filter((o) => o.id !== id));
       return { prev };
     },
     onError: (err, id, ctx) => queryClient.setQueryData(['buy-opportunities'], ctx.prev),
