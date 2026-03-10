@@ -208,7 +208,7 @@ export default function Marketplace() {
 
                     <div className="flex items-center justify-between mt-2">
                       <span className="text-sm text-emerald-400 font-medium">
-                        ${listing.price.toFixed(2)}
+                        ${(listing.price ?? 0).toFixed(2)}
                       </span>
                       <div className="text-xs text-slate-500 flex items-center gap-1">
                         <Clock className="w-3 h-3" />
