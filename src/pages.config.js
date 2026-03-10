@@ -53,6 +53,7 @@ import Home from './pages/Home';
 import Marketplace from './pages/Marketplace';
 import Pricing from './pages/Pricing';
 import Settings from './pages/Settings';
+import Watchlist from './pages/Watchlist';
 import __Layout from './Layout.jsx';
 
 
@@ -63,6 +64,7 @@ export const PAGES = {
     "Marketplace": Marketplace,
     "Pricing": Pricing,
     "Settings": Settings,
+    "Watchlist": Watchlist,
 }
 
 export const pagesConfig = {
