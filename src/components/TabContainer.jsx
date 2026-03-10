@@ -110,38 +110,32 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
 
 // ─── TabContainer ─────────────────────────────────────────────────────────────
 
+// Stable per-tab ref objects created once
+const RESET_HANDLES = Object.fromEntries(TAB_ORDER.map(p => [p, { current: null }]));
+
 export default function TabContainer({ activeTab, onTabResetRef }) {
   const location = useLocation();
   const currentTab = activeTab || normalizePath(location.pathname);
 
-  // Keep a ref map so Layout can call reset on the active tab
-  const stackRefs = useRef({});
-
-  // Expose an imperative handle so Layout's onTabResetRef can call reset()
+  // Keep Layout's reset ref pointing at the currently active tab's reset fn
   useEffect(() => {
     if (onTabResetRef) {
       onTabResetRef.current = {
-        reset: () => stackRefs.current[currentTab]?.reset(),
+        reset: () => RESET_HANDLES[currentTab]?.current?.reset(),
       };
     }
   }, [currentTab, onTabResetRef]);
 
   return (
     <div style={{ height: '100%' }}>
-      {TAB_ORDER.map(tabPath => {
-        const resetHandle = { current: null };
-        stackRefs.current[tabPath] = {
-          reset: () => resetHandle.current?.reset(),
-        };
-        return (
-          <TabStack
-            key={tabPath}
-            tabPath={tabPath}
-            isActive={tabPath === currentTab}
-            onResetScroll={resetHandle}
-          />
-        );
-      })}
+      {TAB_ORDER.map(tabPath => (
+        <TabStack
+          key={tabPath}
+          tabPath={tabPath}
+          isActive={tabPath === currentTab}
+          onResetScroll={RESET_HANDLES[tabPath]}
+        />
+      ))}
     </div>
   );
 }
