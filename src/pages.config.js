@@ -47,14 +47,30 @@
  *
  * The mainPage value must match a key in the PAGES object exactly.
  */
+import CheckoutSuccess from './pages/CheckoutSuccess';
+import History from './pages/History';
+import Home from './pages/Home';
+import Marketplace from './pages/Marketplace';
+import Portfolio from './pages/Portfolio';
+import Pricing from './pages/Pricing';
+import Settings from './pages/Settings';
 import Watchlist from './pages/Watchlist';
+import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
+    "CheckoutSuccess": CheckoutSuccess,
+    "History": History,
+    "Home": Home,
+    "Marketplace": Marketplace,
+    "Portfolio": Portfolio,
+    "Pricing": Pricing,
+    "Settings": Settings,
     "Watchlist": Watchlist,
 }
 
 export const pagesConfig = {
     mainPage: "Watchlist",
     Pages: PAGES,
+    Layout: __Layout,
 };
