@@ -29,10 +29,6 @@ const ROOT_COMPONENTS = {
   '/Settings': Settings,
 };
 
-function normalizePath(path) {
-  return path === '/' ? '/Home' : path;
-}
-
 // ─── Individual Tab Stack ─────────────────────────────────────────────────────
 
 function TabStack({ tabPath, isActive, onResetScroll }) {
