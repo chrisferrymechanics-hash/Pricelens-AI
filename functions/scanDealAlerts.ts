@@ -115,6 +115,9 @@ Be selective — only include deals where the profit opportunity is clear and re
           last_checked: new Date().toISOString()
         });
       }
+
+      // Small delay to avoid rate limiting
+      await new Promise(r => setTimeout(r, 1000));
     }
 
     return Response.json({

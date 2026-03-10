@@ -171,7 +171,6 @@ export default function Pricing() {
       {/* FAQ or Additional Info */}
       <div className="mt-12 text-center text-slate-400 text-sm">
         <p>All plans include secure payments powered by Stripe</p>
-        <p className="mt-2">Test mode: Use card 4242 4242 4242 4242 for testing</p>
       </div>
     </div>
   );

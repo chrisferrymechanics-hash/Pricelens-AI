@@ -34,6 +34,7 @@ export default function ExportPDF({ item }) {
 
   const generate = async () => {
     setLoading(true);
+    try {
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
     const W = 210;
     const margin = 16;
@@ -291,7 +292,11 @@ export default function ExportPDF({ item }) {
 
     const safeName = (item.item_name || 'evaluation').replace(/[^a-z0-9]/gi, '_').toLowerCase();
     doc.save(`price-scout-${safeName}.pdf`);
-    setLoading(false);
+    } catch (err) {
+      console.error('PDF generation failed:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
