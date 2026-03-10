@@ -51,42 +51,38 @@ export default function Layout({ children, currentPageName }) {
         {isTabRoute ? <TabContainer /> : children}
       </div>
 
-      {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-[hsl(var(--background))] dark:bg-slate-900/95 backdrop-blur-lg border-t dark:border-slate-800 border-slate-200 select-none" style={{ touchAction: 'none' }}>
-        {/* Safe area bottom padding */}
-        <div className="pb-[env(safe-area-inset-bottom)]">
-          <div className="flex items-center justify-around px-4 py-3">
-            {navItems.map((item) => {
-              const Icon = item.icon;
-              const active = isActive(item.path);
-              
-              return (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  onClick={() => {
-                    try {
-                      if ('vibrate' in navigator) {
-                        navigator.vibrate(10);
-                      }
-                    } catch (e) {
-                      // Haptics not supported or disabled (e.g., iOS Safari)
-                    }
-                  }}
-                  className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
-                    active 
-                      ? 'text-cyan-300 bg-cyan-500/15' 
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <Icon className={`w-6 h-6 transition-transform ${active ? 'scale-110' : ''}`} />
-                  <span className="text-xs font-medium">{item.name}</span>
-                </Link>
-              );
-            })}
+      {/* Bottom Navigation — only shown on tab routes */}
+      {isTabRoute && (
+        <nav className="fixed bottom-0 left-0 right-0 bg-[hsl(var(--background))] dark:bg-slate-900/95 backdrop-blur-lg border-t dark:border-slate-800 border-slate-200 select-none" style={{ touchAction: 'none' }}>
+          <div className="pb-[env(safe-area-inset-bottom)]">
+            <div className="flex items-center justify-around px-4 py-3">
+              {navItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.path);
+                
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => {
+                      try { if ('vibrate' in navigator) navigator.vibrate(10); } catch (_) {}
+                      // Replace instead of push — tabs must not pollute the back stack
+                      navigate(item.path, { replace: true });
+                    }}
+                    className={`flex flex-col items-center gap-1 px-4 py-2 rounded-xl transition-all ${
+                      active 
+                        ? 'text-cyan-300 bg-cyan-500/15' 
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <Icon className={`w-6 h-6 transition-transform ${active ? 'scale-110' : ''}`} />
+                    <span className="text-xs font-medium">{item.name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </nav>
+        </nav>
+      )}
 
       <style>{`
         :root {
