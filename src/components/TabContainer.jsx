@@ -58,7 +58,7 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
   }, [tabPath]);
 
   // Expose reset so Layout can call it when user taps the active tab icon
-  React.useImperativeHandle(onResetScroll, () => ({ reset }), [reset]);
+  useImperativeHandle(onResetScroll, () => ({ reset }), [reset]);
 
   const currentEntry = stack[stack.length - 1];
   const isAtRoot = stack.length === 1;
