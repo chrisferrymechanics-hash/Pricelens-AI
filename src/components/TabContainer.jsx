@@ -37,6 +37,10 @@ function normalizePath(path) {
 // ─── Individual Tab Stack ─────────────────────────────────────────────────────
 
 function TabStack({ tabPath, isActive, onResetScroll }) {
+  // Lazy mount: don't render until the tab has been visited at least once
+  const hasBeenActive = useRef(isActive);
+  if (isActive) hasBeenActive.current = true;
+
   // stack = array of { Component, props, key }
   const [stack, setStack] = useState([{ Component: ROOT_COMPONENTS[tabPath], props: {}, key: tabPath }]);
   const scrollRef = useRef(null);
