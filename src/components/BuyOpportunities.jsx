@@ -80,14 +80,15 @@ export default function BuyOpportunities() {
           </p>
         </div>
       ) : (
-        <AnimatePresence>
+        <AnimatePresence initial={false}>
           <div className="space-y-2">
             {opps.map((opp, i) => (
               <motion.div
                 key={opp.id}
+                layout
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                exit={{ opacity: 0, height: 0, marginBottom: 0 }}
                 transition={{ delay: i * 0.04 }}
                 className="bg-emerald-900/20 border border-emerald-700/30 rounded-xl p-3"
               >
