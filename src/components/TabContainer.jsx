@@ -119,8 +119,7 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
 const RESET_HANDLES = Object.fromEntries(TAB_ORDER.map(p => [p, { current: null }]));
 
 export default function TabContainer({ activeTab, onTabResetRef }) {
-  const location = useLocation();
-  const currentTab = activeTab || normalizePath(location.pathname);
+  const currentTab = activeTab || '/Home';
 
   // Keep Layout's reset ref pointing at the currently active tab's reset fn
   useEffect(() => {
