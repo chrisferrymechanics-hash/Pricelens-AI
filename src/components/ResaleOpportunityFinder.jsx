@@ -14,6 +14,7 @@ export default function ResaleOpportunityFinder({ result }) {
 
   const findOpportunities = async () => {
     setLoading(true);
+    try {
     const response = await base44.integrations.Core.InvokeLLM({
       prompt: `You are an expert resale market analyst. Search the internet RIGHT NOW for "${itemName}" currently listed for sale.
 
@@ -96,8 +97,12 @@ Focus on improvements with the best ROI. Be specific — name actual products, n
       }
     });
     setData(response);
-    setLoading(false);
     setExpanded(true);
+    } catch (err) {
+      console.error('Resale opportunity finder error:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleToggle = () => {

@@ -114,6 +114,7 @@ export default function SellingAssistant({ result }) {
       setAdvice(response);
     } catch (error) {
       console.error('Failed to generate selling advice:', error);
+      setIsExpanded(false);
     } finally {
       setIsLoading(false);
     }

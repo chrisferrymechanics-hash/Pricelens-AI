@@ -43,22 +43,6 @@ export default function MarketplaceListingForm({ result, onSuccess }) {
       if (result?.back_image_url) images.push(result.back_image_url);
       if (result?.additional_image_urls) images.push(...result.additional_image_urls);
 
-      // Optimistic update - create temp listing immediately
-      const tempListing = {
-        id: `temp-${Date.now()}`,
-        evaluation_id: result?.id,
-        platform: 'ebay',
-        title: formData.title,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        quantity: parseInt(formData.quantity),
-        condition: formData.condition,
-        category: formData.category,
-        images: images.filter(Boolean),
-        status: 'pending',
-        created_date: new Date().toISOString()
-      };
-
       // Create listing via backend
       const response = await base44.functions.invoke('ebayCreateListing', {
         title: formData.title,
