@@ -191,7 +191,7 @@ export default function Watchlist() {
       )}
 
       <p className="text-xs text-slate-600 text-center mt-6 select-none">
-        Price checks run automatically every 12 hours. You'll get an email alert when value changes by 10%+.
+        Price checks run every 12 hours. Tap a % on any item to set its alert threshold.
       </p>
     </div>
   );
