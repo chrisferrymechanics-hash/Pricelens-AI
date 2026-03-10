@@ -2,10 +2,12 @@ import React from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { motion } from 'framer-motion';
-import { Bookmark, Trash2, TrendingUp, TrendingDown, Camera, Search, Gem, RefreshCw } from 'lucide-react';
+import { Bookmark, Trash2, TrendingUp, TrendingDown, Camera, Search, Gem, RefreshCw, Bell } from 'lucide-react';
 import ExportCSV from '@/components/ExportCSV';
 import { Button } from '@/components/ui/button';
 import PullToRefresh from '@/components/PullToRefresh';
+
+const THRESHOLD_OPTIONS = [5, 10, 15, 20, 25, 30];
 
 export default function Watchlist() {
   const queryClient = useQueryClient();

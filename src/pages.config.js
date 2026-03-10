@@ -51,10 +51,10 @@ import CheckoutSuccess from './pages/CheckoutSuccess';
 import History from './pages/History';
 import Home from './pages/Home';
 import Marketplace from './pages/Marketplace';
+import Portfolio from './pages/Portfolio';
 import Pricing from './pages/Pricing';
 import Settings from './pages/Settings';
 import Watchlist from './pages/Watchlist';
-import Portfolio from './pages/Portfolio';
 import __Layout from './Layout.jsx';
 
 
@@ -63,10 +63,10 @@ export const PAGES = {
     "History": History,
     "Home": Home,
     "Marketplace": Marketplace,
+    "Portfolio": Portfolio,
     "Pricing": Pricing,
     "Settings": Settings,
     "Watchlist": Watchlist,
-    "Portfolio": Portfolio,
 }
 
 export const pagesConfig = {
