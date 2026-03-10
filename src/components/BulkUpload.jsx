@@ -24,7 +24,11 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
   };
 
   const removeFile = (id) => {
-    setFiles(prev => prev.filter(f => f.id !== id));
+    setFiles(prev => {
+      const removed = prev.find(f => f.id === id);
+      if (removed) URL.revokeObjectURL(removed.preview);
+      return prev.filter(f => f.id !== id);
+    });
   };
 
   const handleAnalyze = async () => {
@@ -78,7 +82,7 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
   };
 
   const handleReset = () => {
-    setFiles([]);
+    setFiles(prev => { prev.forEach(f => URL.revokeObjectURL(f.preview)); return []; });
     setResults(null);
     setProgress({ current: 0, total: 0 });
   };

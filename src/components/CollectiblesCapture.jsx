@@ -32,6 +32,7 @@ export default function CollectiblesCapture({ onCapture, isProcessing }) {
 
   const removeImage = (index) => {
     setImages(images.filter((_, i) => i !== index));
+    if (fileInputRef.current) fileInputRef.current.value = '';
   };
 
   const clearImages = () => {
