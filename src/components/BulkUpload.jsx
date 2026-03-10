@@ -38,6 +38,7 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
 
     const batchResults = [];
 
+    try {
     for (let i = 0; i < files.length; i++) {
       setProgress({ current: i + 1, total: files.length });
       const { file_url } = await base44.integrations.Core.UploadFile({ file: files[i].file });
@@ -78,7 +79,11 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
     }
 
     setResults(batchResults);
-    setIsProcessing(false);
+    } catch (err) {
+      console.error('Bulk analyze error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleReset = () => {
