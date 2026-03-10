@@ -126,10 +126,10 @@ export default function BuyOpportunities() {
                         {opp.platform}
                       </Badge>
                       <span className="text-emerald-400 font-bold text-sm">
-                        ${opp.listing_price?.toFixed(2)}
+                        ${opp.listing_price != null ? opp.listing_price.toFixed(2) : '—'}
                       </span>
                       <span className="text-slate-500 text-xs line-through">
-                        avg ${opp.historical_avg?.toFixed(2)}
+                        {opp.historical_avg != null ? `avg $${opp.historical_avg.toFixed(2)}` : ''}
                       </span>
                       <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs font-bold">
                         -{opp.discount_pct}%
