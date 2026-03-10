@@ -14,7 +14,36 @@ export default function History() {
     queryFn: () => base44.entities.PriceEvaluation.list('-created_date', 50),
   });
 
+  const queryClient = useQueryClient();
   const [deletedIds, setDeletedIds] = React.useState(new Set());
+  const [watchedIds, setWatchedIds] = React.useState(new Set());
+
+  // Load existing watchlist IDs to show filled bookmark
+  React.useEffect(() => {
+    base44.entities.WatchlistItem.list().then(items => {
+      const ids = new Set(items.map(i => i.evaluation_id).filter(Boolean));
+      setWatchedIds(ids);
+    }).catch(() => {});
+  }, []);
+
+  const handleWatch = async (item) => {
+    if (watchedIds.has(item.id)) return; // already watching
+    const user = await base44.auth.me();
+    await base44.entities.WatchlistItem.create({
+      evaluation_id: item.id,
+      item_name: item.item_name,
+      item_description: item.item_description,
+      image_url: item.front_image_url || item.image_url || null,
+      category: item.category || null,
+      collectible_type: item.collectible_type || null,
+      search_query: item.search_query || null,
+      last_known_value_low: item.estimated_value_low || item.secondhand_price_low || item.new_price_low || null,
+      last_known_value_high: item.estimated_value_high || item.secondhand_price_high || item.new_price_high || null,
+      user_email: user?.email || '',
+    });
+    setWatchedIds(prev => new Set(prev).add(item.id));
+    queryClient.invalidateQueries({ queryKey: ['watchlist'] });
+  };
 
   const handleDelete = async (id) => {
     // Optimistic update
