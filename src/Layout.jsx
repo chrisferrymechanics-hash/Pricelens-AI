@@ -46,9 +46,25 @@ export default function Layout({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-[hsl(var(--background))]">
-      {/* Main content with bottom padding for nav (64px nav + safe area) */}
-      <div style={{ paddingBottom: 'calc(64px + env(safe-area-inset-bottom))' }}>
-        {isTabRoute ? <TabContainer /> : children}
+      {/* Main content */}
+      <div style={isTabRoute ? { paddingBottom: 'calc(64px + env(safe-area-inset-bottom))' } : {}}>
+        {isTabRoute ? (
+          <TabContainer />
+        ) : (
+          <>
+            {/* Back bar for non-tab pages */}
+            <div className="sticky top-0 z-40 flex items-center px-4 pt-[env(safe-area-inset-top)] h-14 bg-[hsl(var(--background))]/90 backdrop-blur border-b border-slate-800/50">
+              <button
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-1.5 text-slate-400 hover:text-white transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5" />
+                <span className="text-sm font-medium">Back</span>
+              </button>
+            </div>
+            {children}
+          </>
+        )}
       </div>
 
       {/* Bottom Navigation — only shown on tab routes */}
