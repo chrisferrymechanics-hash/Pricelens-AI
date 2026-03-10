@@ -42,10 +42,13 @@ Deno.serve(async (req) => {
     const cutoff = Date.now() - 48 * 60 * 60 * 1000; // 48 h
     const existingUrls = new Set();
     for (const opp of allOpps) {
-      if (opp.listing_url) existingUrls.add(opp.listing_url);
-      if (!opp.is_dismissed && new Date(opp.scanned_at || opp.created_date).getTime() < cutoff) {
+      const isStale = new Date(opp.scanned_at || opp.created_date).getTime() < cutoff;
+      if (isStale) {
+        // Delete all stale records regardless of dismissed state
         await sr.entities.BuyOpportunity.delete(opp.id);
-        existingUrls.delete(opp.listing_url);
+      } else {
+        // Only track URLs of non-stale records to avoid blocking future deduplication
+        if (opp.listing_url) existingUrls.add(opp.listing_url);
       }
     }
 
@@ -113,12 +116,12 @@ Return ONLY valid JSON matching this schema:
         if (!Array.isArray(listings) || listings.length === 0) continue;
 
         // ── 4. Save qualifying listings as BuyOpportunity records ─────────────
+        const newDeals = [];
         for (const listing of listings) {
           if (!listing.listing_price || listing.listing_price <= 0) continue;
           const discountPct = ((historicalAvg - listing.listing_price) / historicalAvg) * 100;
-          if (discountPct < threshold) continue; // doesn't hit our threshold
+          if (discountPct < threshold) continue;
 
-          // Avoid duplicate opportunities for the same URL
           if (!listing.listing_url || existingUrls.has(listing.listing_url)) continue;
           existingUrls.add(listing.listing_url);
 
@@ -137,26 +140,26 @@ Return ONLY valid JSON matching this schema:
             scanned_at: new Date().toISOString(),
           });
 
+          newDeals.push({ ...listing, discountPct });
           results.deals_found++;
+        }
 
-          // ── 5. Send email alert ─────────────────────────────────────────────
+        // ── 5. Send ONE grouped email per item if any new deals ──────────────
+        if (newDeals.length > 0 && item.user_email) {
+          const dealsHtml = newDeals.map(d => `
+<b>Platform:</b> ${d.platform}<br/>
+<b>Listing:</b> ${d.listing_title}<br/>
+<b>Price:</b> $${d.listing_price.toFixed(2)} (${d.discountPct.toFixed(0)}% below market)<br/>
+<a href="${d.listing_url}" target="_blank">View Listing →</a>
+          `).join('<br/><hr/><br/>');
+
           await sr.integrations.Core.SendEmail({
             to: item.user_email,
-            subject: `🛒 Buy opportunity: ${item.item_name} at ${discountPct.toFixed(0)}% below market`,
+            subject: `🛒 ${newDeals.length} buy opportunit${newDeals.length > 1 ? 'ies' : 'y'} found: ${item.item_name}`,
             body: `
-Hi,
-
-A listing for <strong>${item.item_name}</strong> has been found at a price significantly below its historical average — this could be a great buy.
-
-<b>Platform:</b> ${listing.platform}<br/>
-<b>Listing:</b> ${listing.listing_title}<br/>
-<b>Price:</b> $${listing.listing_price.toFixed(2)}<br/>
-<b>Historical average:</b> $${historicalAvg.toFixed(2)}<br/>
-<b>Discount:</b> ${discountPct.toFixed(0)}% below market value<br/>
-<br/>
-<a href="${listing.listing_url}" target="_blank">View Listing →</a>
-
-This alert was generated because you are watching this item on Priclens.
+<p>We found <strong>${newDeals.length}</strong> listing${newDeals.length > 1 ? 's' : ''} for <strong>${item.item_name}</strong> priced below its historical average of $${historicalAvg.toFixed(2)}.</p>
+${dealsHtml}
+<p style="color:#aaa;font-size:12px;">This alert was generated because you are watching this item on Priclens.</p>
             `.trim(),
           });
         }

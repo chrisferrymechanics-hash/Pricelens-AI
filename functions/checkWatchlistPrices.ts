@@ -45,8 +45,8 @@ Return ONLY the price range as two numbers. Be conservative and accurate. Use US
         const oldHigh = item.last_known_value_high;
 
         // Calculate % change based on midpoint
-        const oldMid = oldLow && oldHigh ? (oldLow + oldHigh) / 2 : null;
-        const newMid = newLow && newHigh ? (newLow + newHigh) / 2 : null;
+        const oldMid = oldLow != null && oldHigh != null ? (oldLow + oldHigh) / 2 : null;
+        const newMid = newLow != null && newHigh != null ? (newLow + newHigh) / 2 : null;
         const lastAlertMid = item.last_alert_value_low ?? oldMid;
 
         const threshold = (item.alert_threshold ?? 10) / 100;
