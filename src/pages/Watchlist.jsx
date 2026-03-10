@@ -50,8 +50,15 @@ export default function Watchlist() {
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       <div className="mb-6 select-none">
-        <h1 className="text-2xl font-bold text-white">Watchlist</h1>
-        <p className="text-slate-400 text-sm">Track items & get price alerts</p>
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Watchlist</h1>
+            <p className="text-slate-400 text-sm">Track items & get price alerts</p>
+          </div>
+          {items.length > 0 && (
+            <ExportCSV items={items} source="watchlist" label="Export CSV" />
+          )}
+        </div>
       </div>
 
       {isLoading ? (

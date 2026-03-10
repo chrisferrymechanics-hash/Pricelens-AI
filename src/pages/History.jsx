@@ -78,8 +78,15 @@ export default function History() {
     <div className="max-w-lg mx-auto px-4 py-6">
       {/* Header */}
       <div className="mb-6 select-none">
-        <h1 className="text-2xl font-bold text-white">Search History</h1>
-        <p className="text-slate-400 text-sm">Your past evaluations</p>
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Search History</h1>
+            <p className="text-slate-400 text-sm">Your past evaluations</p>
+          </div>
+          {visibleEvaluations.length > 0 && (
+            <ExportCSV items={visibleEvaluations} source="history" label="Export CSV" />
+          )}
+        </div>
       </div>
 
       {isLoading ? (
