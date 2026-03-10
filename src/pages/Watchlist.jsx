@@ -139,9 +139,9 @@ export default function Watchlist() {
                               </span>
                             )
                           ) : null}
-                          {item.last_known_value_low && (
+                          {item.last_known_value_low != null && (
                             <span className="text-sm text-emerald-400 font-medium whitespace-nowrap">
-                              ${item.last_known_value_low?.toFixed(0)}–${item.last_known_value_high?.toFixed(0)}
+                              ${item.last_known_value_low.toFixed(0)}{item.last_known_value_high != null ? `–$${item.last_known_value_high.toFixed(0)}` : ''}
                             </span>
                           )}
                         </div>

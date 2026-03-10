@@ -131,9 +131,11 @@ export default function BuyOpportunities() {
                       <span className="text-slate-500 text-xs line-through">
                         {opp.historical_avg != null ? `avg $${opp.historical_avg.toFixed(2)}` : ''}
                       </span>
-                      <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs font-bold">
-                        -{opp.discount_pct}%
-                      </Badge>
+                      {opp.discount_pct != null && (
+                        <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/30 text-xs font-bold">
+                          -{opp.discount_pct}%
+                        </Badge>
+                      )}
                     </div>
 
                     <a
