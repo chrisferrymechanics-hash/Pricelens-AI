@@ -7,9 +7,7 @@ import Watchlist from '@/pages/Watchlist';
 import Portfolio from '@/pages/Portfolio';
 import Settings from '@/pages/Settings';
 
-// ─── Tab Navigation Context ──────────────────────────────────────────────────
-// Exposed so child pages can push/pop sub-pages within the same tab stack.
-
+// ─── Tab Navigation Context ───────────────────────────────────────────────────
 const TabNavContext = createContext(null);
 
 export function useTabNav() {
@@ -17,7 +15,6 @@ export function useTabNav() {
 }
 
 // ─── Constants ────────────────────────────────────────────────────────────────
-
 const TAB_ORDER = ['/Home', '/History', '/Watchlist', '/Portfolio', '/Marketplace', '/Settings'];
 
 const ROOT_COMPONENTS = {
@@ -29,14 +26,15 @@ const ROOT_COMPONENTS = {
   '/Settings': Settings,
 };
 
-// ─── Individual Tab Stack ─────────────────────────────────────────────────────
+// Stable per-tab ref objects — created once at module level, never recreated
+const RESET_HANDLES = Object.fromEntries(TAB_ORDER.map(p => [p, { current: null }]));
 
+// ─── Individual Tab Stack ─────────────────────────────────────────────────────
 function TabStack({ tabPath, isActive, onResetScroll }) {
-  // Lazy mount: don't render until the tab has been visited at least once
+  // Lazy mount: only render after the tab has been visited at least once
   const hasBeenActive = useRef(isActive);
   if (isActive) hasBeenActive.current = true;
 
-  // stack = array of { Component, props, key }
   const [stack, setStack] = useState([{ Component: ROOT_COMPONENTS[tabPath], props: {}, key: tabPath }]);
   const scrollRef = useRef(null);
 
@@ -52,11 +50,9 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
 
   const reset = useCallback(() => {
     setStack([{ Component: ROOT_COMPONENTS[tabPath], props: {}, key: tabPath }]);
-    // Scroll to top
     if (scrollRef.current) scrollRef.current.scrollTo({ top: 0, behavior: 'smooth' });
   }, [tabPath]);
 
-  // Expose reset so Layout can call it when user taps the active tab icon
   useImperativeHandle(onResetScroll, () => ({ reset }), [reset]);
 
   const currentEntry = stack[stack.length - 1];
@@ -84,7 +80,6 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
             transition={{ duration: 0.18, ease: 'easeInOut' }}
             style={{ minHeight: '100%' }}
           >
-            {/* Sub-page back bar (only when drilled in) */}
             {!isAtRoot && (
               <div className="sticky top-0 z-40 flex items-center px-4 h-12 bg-[hsl(var(--background))]/95 backdrop-blur border-b border-slate-800/50">
                 <button
@@ -110,14 +105,9 @@ function TabStack({ tabPath, isActive, onResetScroll }) {
 }
 
 // ─── TabContainer ─────────────────────────────────────────────────────────────
-
-// Stable per-tab ref objects created once
-const RESET_HANDLES = Object.fromEntries(TAB_ORDER.map(p => [p, { current: null }]));
-
 export default function TabContainer({ activeTab, onTabResetRef }) {
   const currentTab = activeTab || '/Home';
 
-  // Keep Layout's reset ref pointing at the currently active tab's reset fn
   useEffect(() => {
     if (onTabResetRef) {
       onTabResetRef.current = {
