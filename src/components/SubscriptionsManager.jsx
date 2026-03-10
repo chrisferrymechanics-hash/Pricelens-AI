@@ -153,13 +153,14 @@ export default function SubscriptionsManager() {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    base44.auth.me().then(u => {
+    const load = async () => {
+      const u = await base44.auth.me();
       setUser(u);
-      return base44.entities.Subscription.list('-created_date');
-    }).then(data => {
+      const data = await base44.entities.Subscription.list('-created_date');
       setSubs(data);
       setLoading(false);
-    });
+    };
+    load();
   }, []);
 
   const handleAdd = async (data) => {
