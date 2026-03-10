@@ -4,8 +4,11 @@ import { createPageUrl } from '@/utils';
 import { Home, Clock, Settings, Store, Bookmark, Layers, ArrowLeft } from 'lucide-react';
 import TabContainer from '@/components/TabContainer';
 
+const TAB_PATHS = new Set(['/', '/Home', '/History', '/Marketplace', '/Watchlist', '/Portfolio', '/Settings']);
+
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const navigate = useNavigate();
   
   React.useEffect(() => {
     // Load and apply saved theme preference
