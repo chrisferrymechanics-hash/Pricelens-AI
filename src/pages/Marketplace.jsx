@@ -69,7 +69,7 @@ export default function Marketplace() {
     total: listings.length,
     active: listings.filter(l => l.status === 'active').length,
     sold: listings.filter(l => l.status === 'sold').length,
-    revenue: listings.reduce((sum, l) => sum + (l.sales_data?.sale_price || 0), 0)
+    revenue: listings.reduce((sum, l) => sum + (parseFloat(l.sales_data?.sale_price) || 0), 0)
   };
 
   return (

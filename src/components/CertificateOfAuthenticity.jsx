@@ -157,10 +157,12 @@ function CertPrint({ result, certId, issueDate }) {
             <div className="text-xs text-gray-400 mb-0.5">Estimated Market Value (Ungraded)</div>
             <div className="text-lg font-bold">${result.estimated_value_low?.toFixed(0) ?? '—'} – ${result.estimated_value_high?.toFixed(0) ?? '—'}</div>
           </div>
-          {result.graded_value_low && (
+          {result.graded_value_low != null && (
             <div>
               <div className="text-xs text-gray-400 mb-0.5">Estimated Value (Graded)</div>
-              <div className="text-lg font-bold">${result.graded_value_low?.toFixed(0)} – ${result.graded_value_high?.toFixed(0)}</div>
+              <div className="text-lg font-bold">
+                ${result.graded_value_low.toFixed(0)}{result.graded_value_high != null ? ` – $${result.graded_value_high.toFixed(0)}` : ''}
+              </div>
             </div>
           )}
         </div>
@@ -219,6 +221,7 @@ export default function CertificateOfAuthenticity({ result, onClose }) {
   const handlePrint = () => {
     const printContent = document.getElementById('cert-printable');
     const win = window.open('', '_blank', 'width=900,height=700');
+    if (!win) { alert('Please allow popups to print the certificate.'); return; }
     win.document.write(`
       <html>
         <head>
