@@ -33,6 +33,7 @@ export default function CameraCapture({ onCapture, isProcessing }) {
   const handleIdentify = async () => {
     if (!selectedFile) return;
     setIsIdentifying(true);
+    try {
     const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
     const result = await base44.integrations.Core.InvokeLLM({
       prompt: `Look at this image and quickly identify the item. Return just the basic identification — do not do deep market research yet.`,
@@ -48,7 +49,11 @@ export default function CameraCapture({ onCapture, isProcessing }) {
       }
     });
     setIdentified({ ...result, _file_url: file_url });
-    setIsIdentifying(false);
+    } catch (err) {
+      console.error('Identify error:', err);
+    } finally {
+      setIsIdentifying(false);
+    }
   };
 
   const handleAnalyze = () => {
