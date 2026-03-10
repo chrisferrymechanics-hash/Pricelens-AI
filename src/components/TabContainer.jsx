@@ -118,7 +118,7 @@ export default function TabContainer({ activeTab, onTabResetRef }) {
   const stackRefs = useRef({});
 
   // Expose an imperative handle so Layout's onTabResetRef can call reset()
-  React.useEffect(() => {
+  useEffect(() => {
     if (onTabResetRef) {
       onTabResetRef.current = {
         reset: () => stackRefs.current[currentTab]?.reset(),
