@@ -118,15 +118,18 @@ export default function History() {
                    </div>
                  </div>
 
-                {/* Delete */}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(item.id)}
-                  className="text-slate-500 hover:text-red-400 flex-shrink-0"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
+                {/* Actions */}
+                 <div className="flex items-center flex-shrink-0">
+                   <ExportPDF item={item} />
+                   <Button
+                     variant="ghost"
+                     size="icon"
+                     onClick={() => handleDelete(item.id)}
+                     className="text-slate-500 hover:text-red-400"
+                   >
+                     <Trash2 className="w-4 h-4" />
+                   </Button>
+                 </div>
               </div>
             </motion.div>
             ))}
