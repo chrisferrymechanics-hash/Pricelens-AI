@@ -29,7 +29,7 @@ export default function Layout({ children, currentPageName }) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
   
-  const isTabRoute = ['/', '/Home', '/History', '/Marketplace', '/Watchlist', '/Portfolio', '/Settings'].includes(location.pathname);
+  const isTabRoute = TAB_PATHS.has(location.pathname);
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
