@@ -16,7 +16,11 @@ Deno.serve(async (req) => {
       base44.asServiceRole.entities.Subscription.filter({ created_by: user.email })
         .then(items => Promise.all(items.map(i => base44.asServiceRole.entities.Subscription.delete(i.id)))),
       base44.asServiceRole.entities.MarketplaceListing.filter({ created_by: user.email })
-        .then(items => Promise.all(items.map(i => base44.asServiceRole.entities.MarketplaceListing.delete(i.id))))
+        .then(items => Promise.all(items.map(i => base44.asServiceRole.entities.MarketplaceListing.delete(i.id)))),
+      base44.asServiceRole.entities.WatchlistItem.filter({ created_by: user.email })
+        .then(items => Promise.all(items.map(i => base44.asServiceRole.entities.WatchlistItem.delete(i.id)))),
+      base44.asServiceRole.entities.Collection.filter({ created_by: user.email })
+        .then(items => Promise.all(items.map(i => base44.asServiceRole.entities.Collection.delete(i.id))))
     ];
 
     await Promise.all(deletePromises);
