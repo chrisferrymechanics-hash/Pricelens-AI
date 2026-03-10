@@ -140,7 +140,7 @@ export default function History() {
                  <div className="flex-1 min-w-0">
                    <div className="flex items-center justify-between gap-2">
                      <h3 className="font-medium text-white truncate text-sm">{item.item_name}</h3>
-                     {(item.new_price_low || item.estimated_value_low) && (() => {
+                     {(item.estimated_value_low || item.secondhand_price_low || item.new_price_low) && (() => {
                        const lo = item.estimated_value_low || item.secondhand_price_low || item.new_price_low;
                        const hi = item.estimated_value_high || item.secondhand_price_high || item.new_price_high;
                        return lo ? (

@@ -139,7 +139,7 @@ export default function Home() {
     }
     
     setIsProcessing(true);
-    
+    try {
     const { file_url } = await base44.integrations.Core.UploadFile({ file });
     
     const analysisResult = await analyzeWithAI(
@@ -183,7 +183,11 @@ Mark each with is_local: true/false. Prices in USD. Include real, working URLs.`
     }
     
     setResult(finalResult);
-    setIsProcessing(false);
+    } catch (err) {
+      console.error('Image capture error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleKeywordSearch = async (query) => {
@@ -193,7 +197,7 @@ Mark each with is_local: true/false. Prices in USD. Include real, working URLs.`
     }
     
     setIsProcessing(true);
-    
+    try {
     const analysisResult = await analyzeWithAI(
       `You are an expert price researcher and resale market analyst. Search the internet for "${query}" and provide a comprehensive, data-driven pricing report.
 
@@ -232,7 +236,11 @@ Use real current market data. Prices in USD. Include actual working URLs.`
     }
     
     setResult(finalResult);
-    setIsProcessing(false);
+    } catch (err) {
+      console.error('Keyword search error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleBack = () => {
@@ -247,7 +255,7 @@ Use real current market data. Prices in USD. Include actual working URLs.`
     }
     
     setIsProcessing(true);
-    
+    try {
     // Upload all images
     const uploadPromises = files.map(file => 
       base44.integrations.Core.UploadFile({ file })
@@ -454,7 +462,11 @@ Use real current market data. Prices in USD. Include actual working URLs.`
     }
     
     setCollectibleResult(finalResult);
-    setIsProcessing(false);
+    } catch (err) {
+      console.error('Collectibles capture error:', err);
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   return (
