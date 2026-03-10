@@ -9,11 +9,13 @@ import { Badge } from '@/components/ui/badge';
 export default function BuyOpportunities() {
   const queryClient = useQueryClient();
 
-  const { data: opps = [], isLoading } = useQuery({
+  const { data: rawOpps = [], isLoading } = useQuery({
     queryKey: ['buy-opportunities'],
-    queryFn: () => base44.entities.BuyOpportunity.filter({ is_dismissed: false }, '-created_date', 20),
+    queryFn: () => base44.entities.BuyOpportunity.list('-created_date', 50),
     refetchInterval: 60_000,
   });
+
+  const opps = rawOpps.filter((o) => !o.is_dismissed);
 
   const [isScanning, setIsScanning] = React.useState(false);
 
