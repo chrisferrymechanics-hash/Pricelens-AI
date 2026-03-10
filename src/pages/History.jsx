@@ -150,6 +150,15 @@ export default function History() {
 
                 {/* Actions */}
                  <div className="flex items-center flex-shrink-0">
+                   <Button
+                     variant="ghost"
+                     size="icon"
+                     onClick={() => handleWatch(item)}
+                     className={watchedIds.has(item.id) ? 'text-cyan-400' : 'text-slate-500 hover:text-cyan-400'}
+                     title={watchedIds.has(item.id) ? 'Watching' : 'Add to Watchlist'}
+                   >
+                     <Bookmark className={`w-4 h-4 ${watchedIds.has(item.id) ? 'fill-cyan-400' : ''}`} />
+                   </Button>
                    <ExportPDF item={item} />
                    <Button
                      variant="ghost"
