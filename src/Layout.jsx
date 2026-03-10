@@ -26,12 +26,13 @@ export default function Layout({ children, currentPageName }) {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
   
-  const isTabRoute = ['/', '/Home', '/History', '/Marketplace', '/Watchlist', '/Settings'].includes(location.pathname);
+  const isTabRoute = ['/', '/Home', '/History', '/Marketplace', '/Watchlist', '/Portfolio', '/Settings'].includes(location.pathname);
   
   const navItems = [
     { name: 'Home', icon: Home, path: createPageUrl('Home') },
     { name: 'History', icon: Clock, path: createPageUrl('History') },
     { name: 'Watchlist', icon: Bookmark, path: createPageUrl('Watchlist') },
+    { name: 'Portfolio', icon: Layers, path: createPageUrl('Portfolio') },
     { name: 'Marketplace', icon: Store, path: createPageUrl('Marketplace') },
     { name: 'Settings', icon: Settings, path: createPageUrl('Settings') }
   ];
