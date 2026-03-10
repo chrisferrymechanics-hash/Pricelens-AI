@@ -481,7 +481,7 @@ Use real current market data. Prices in USD. Include actual working URLs.`
             <Sparkles className="w-4 h-4 text-cyan-300" />
             <span className="text-cyan-300 text-sm font-medium">AI-Powered</span>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Price Scout</h1>
+          <h1 className="text-3xl font-bold text-white mb-2">Pricelens AI</h1>
           <p className="text-slate-400">Find the best prices for anything</p>
           {user && (
             <div className="mt-3 text-sm text-slate-400">
