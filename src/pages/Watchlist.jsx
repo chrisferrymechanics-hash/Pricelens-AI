@@ -6,6 +6,7 @@ import { Bookmark, Trash2, TrendingUp, TrendingDown, Camera, Search, Gem, Refres
 import ExportCSV from '@/components/ExportCSV';
 import { Button } from '@/components/ui/button';
 import PullToRefresh from '@/components/PullToRefresh';
+import BuyOpportunities from '@/components/BuyOpportunities';
 
 const THRESHOLD_OPTIONS = [5, 10, 15, 20, 25, 30];
 
@@ -107,7 +108,6 @@ export default function Watchlist() {
                   className="bg-slate-800/50 border border-slate-700/50 rounded-xl p-3 hover:border-slate-600 transition-colors"
                 >
                   <div className="flex gap-2 items-center">
-                    {/* Image / Icon */}
                     {item.image_url ? (
                       <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
                         <img src={item.image_url} alt={item.item_name} className="w-full h-full object-cover" />
@@ -124,7 +124,6 @@ export default function Watchlist() {
                       </div>
                     )}
 
-                    {/* Content */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <h3 className="font-medium text-white truncate text-sm">{item.item_name}</h3>
@@ -173,7 +172,6 @@ export default function Watchlist() {
                       </div>
                     </div>
 
-                    {/* Remove */}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -190,8 +188,11 @@ export default function Watchlist() {
         </PullToRefresh>
       )}
 
+      {/* Buy Opportunities Section */}
+      <BuyOpportunities />
+
       <p className="text-xs text-slate-600 text-center mt-6 select-none">
-        Price checks run every 12 hours. Tap a % on any item to set its alert threshold.
+        Price checks & buy scans run automatically every 12 hours. Tap a % on any item to set its alert threshold.
       </p>
     </div>
   );
