@@ -10,7 +10,9 @@ import SellingAssistant from './SellingAssistant';
 import MarketplaceQuickList from './MarketplaceQuickList';
 
 function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 }) {
-  const avgPrice = (lowPrice + highPrice) / 2;
+  const low = lowPrice || 0;
+  const high = highPrice || 0;
+  const avgPrice = (low + high) / 2;
   
   const colorMap = {
     cyan: { bg: 'bg-cyan-500/10', border: 'border-cyan-500/30', text: 'text-cyan-400' },
@@ -31,9 +33,9 @@ function PriceCard({ title, icon: Icon, lowPrice, highPrice, color, delay = 0 })
       </div>
       <div className="text-2xl font-bold text-white">${avgPrice.toFixed(0)}</div>
       <div className="flex items-center gap-2 mt-1 text-xs text-slate-400">
-        <TrendingDown className="w-3 h-3" />${lowPrice.toFixed(0)}
+        <TrendingDown className="w-3 h-3" />${low.toFixed(0)}
         <span>-</span>
-        <TrendingUp className="w-3 h-3" />${highPrice.toFixed(0)}
+        <TrendingUp className="w-3 h-3" />${high.toFixed(0)}
       </div>
     </motion.div>
   );

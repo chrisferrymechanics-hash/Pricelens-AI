@@ -140,11 +140,15 @@ export default function History() {
                  <div className="flex-1 min-w-0">
                    <div className="flex items-center justify-between gap-2">
                      <h3 className="font-medium text-white truncate text-sm">{item.item_name}</h3>
-                     {(item.new_price_low || item.estimated_value_low) && (
-                       <span className="text-sm text-emerald-400 font-medium whitespace-nowrap">
-                         ${(item.estimated_value_low || item.secondhand_price_low || item.new_price_low)?.toFixed(0)}–${(item.estimated_value_high || item.secondhand_price_high || item.new_price_high)?.toFixed(0)}
-                       </span>
-                     )}
+                     {(item.new_price_low || item.estimated_value_low) && (() => {
+                       const lo = item.estimated_value_low || item.secondhand_price_low || item.new_price_low;
+                       const hi = item.estimated_value_high || item.secondhand_price_high || item.new_price_high;
+                       return lo ? (
+                         <span className="text-sm text-emerald-400 font-medium whitespace-nowrap">
+                           ${lo.toFixed(0)}{hi ? `–$${hi.toFixed(0)}` : ''}
+                         </span>
+                       ) : null;
+                     })()}
                    </div>
                    <div className="flex items-center gap-2 mt-0.5">
                      <span className="text-xs text-slate-500">{formatDate(item.created_date)}</span>

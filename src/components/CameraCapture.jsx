@@ -186,7 +186,7 @@ export default function CameraCapture({ onCapture, isProcessing }) {
                       <div>
                         <p className="text-xs text-slate-500">Est. Value</p>
                         <p className="text-sm font-semibold text-emerald-400">
-                          ${identified.estimated_value_low?.toLocaleString()} – ${identified.estimated_value_high?.toLocaleString()}
+                          ${identified.estimated_value_low?.toLocaleString()}{identified.estimated_value_high != null ? ` – $${identified.estimated_value_high.toLocaleString()}` : ''}
                         </p>
                       </div>
                     </div>
