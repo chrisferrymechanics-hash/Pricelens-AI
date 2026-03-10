@@ -38,11 +38,14 @@ Deno.serve(async (req) => {
     }
 
     // ── 2. Purge old non-dismissed opportunities (keep feed fresh) ────────────
-    const oldOpps = await sr.entities.BuyOpportunity.list('-created_date', 500);
+    const allOpps = await sr.entities.BuyOpportunity.list('-created_date', 500);
     const cutoff = Date.now() - 48 * 60 * 60 * 1000; // 48 h
-    for (const opp of oldOpps) {
+    const existingUrls = new Set();
+    for (const opp of allOpps) {
+      if (opp.listing_url) existingUrls.add(opp.listing_url);
       if (!opp.is_dismissed && new Date(opp.scanned_at || opp.created_date).getTime() < cutoff) {
         await sr.entities.BuyOpportunity.delete(opp.id);
+        existingUrls.delete(opp.listing_url);
       }
     }
 
