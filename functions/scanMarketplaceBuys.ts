@@ -119,8 +119,8 @@ Return ONLY valid JSON matching this schema:
           if (discountPct < threshold) continue; // doesn't hit our threshold
 
           // Avoid duplicate opportunities for the same URL
-          const existing = oldOpps.find((o) => o.listing_url === listing.listing_url);
-          if (existing) continue;
+          if (!listing.listing_url || existingUrls.has(listing.listing_url)) continue;
+          existingUrls.add(listing.listing_url);
 
           await sr.entities.BuyOpportunity.create({
             watchlist_item_id: item.id,
