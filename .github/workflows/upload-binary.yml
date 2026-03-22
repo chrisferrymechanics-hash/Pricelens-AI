@@ -15,9 +15,17 @@ jobs:
 
     steps:
       - name: Download IPA
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          echo "Downloading IPA from ${{ github.event.inputs.ipa_url }}"
-          curl -L --fail "${{ github.event.inputs.ipa_url }}" -o app.ipa
+          IPA_URL="${{ github.event.inputs.ipa_url }}"
+          echo "Downloading IPA from: $IPA_URL"
+          HTTP_STATUS=$(curl -L -w "%{http_code}" -o app.ipa             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/octet-stream"             "$IPA_URL")
+          echo "HTTP status: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" != "200" ]; then
+            echo "ERROR: Failed to download IPA. HTTP status $HTTP_STATUS"
+            exit 1
+          fi
           ls -lh app.ipa
 
       - name: Write API key
