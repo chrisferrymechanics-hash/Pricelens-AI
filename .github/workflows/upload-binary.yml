@@ -20,11 +20,28 @@ jobs:
         run: |
           IPA_URL="${{ github.event.inputs.ipa_url }}"
           echo "Downloading IPA from: $IPA_URL"
-          HTTP_STATUS=$(curl -L -w "%{http_code}" -o app.ipa             -H "Authorization: Bearer $GH_TOKEN"             -H "Accept: application/octet-stream"             "$IPA_URL")
-          echo "HTTP status: $HTTP_STATUS"
-          if [ "$HTTP_STATUS" != "200" ]; then
-            echo "ERROR: Failed to download IPA. HTTP status $HTTP_STATUS"
-            exit 1
+
+          # If it's a GitHub artifact URL, extract the artifact ID and use the API
+          if [[ "$IPA_URL" =~ /actions/runs/[0-9]+/artifacts/([0-9]+) ]]; then
+            ARTIFACT_ID="${BASH_REMATCH[1]}"
+            REPO="${{ github.repository }}"
+            echo "Detected GitHub artifact ID: $ARTIFACT_ID"
+            gh api "/repos/$REPO/actions/artifacts/$ARTIFACT_ID/zip" > artifact.zip
+            unzip -o artifact.zip "*.ipa" || unzip -o artifact.zip
+            IPA_FILE=$(find . -name "*.ipa" | head -1)
+            if [ -z "$IPA_FILE" ]; then
+              echo "ERROR: No .ipa file found in artifact zip"
+              exit 1
+            fi
+            mv "$IPA_FILE" app.ipa
+          else
+            # Direct URL — use curl
+            HTTP_STATUS=$(curl -L -w "%{http_code}" -o app.ipa               -H "Authorization: Bearer $GH_TOKEN"               -H "Accept: application/octet-stream"               "$IPA_URL")
+            echo "HTTP status: $HTTP_STATUS"
+            if [ "$HTTP_STATUS" != "200" ]; then
+              echo "ERROR: Failed to download IPA. HTTP status $HTTP_STATUS"
+              exit 1
+            fi
           fi
           ls -lh app.ipa
 
