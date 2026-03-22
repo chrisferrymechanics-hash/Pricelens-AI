@@ -1,0 +1,46 @@
+name: Upload Binary to App Store Connect
+
+on:
+  workflow_dispatch:
+    inputs:
+      ipa_url:
+        description: 'Direct URL to the .ipa file to upload'
+        required: true
+        type: string
+
+jobs:
+  upload-to-appstore:
+    name: Upload IPA via xcrun altool
+    runs-on: macos-latest
+
+    steps:
+      - name: Download IPA
+        run: |
+          echo "Downloading IPA from ${{ github.event.inputs.ipa_url }}"
+          curl -L --fail "${{ github.event.inputs.ipa_url }}" -o app.ipa
+          ls -lh app.ipa
+
+      - name: Write API key
+        env:
+          ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
+        run: |
+          mkdir -p ~/.appstoreconnect/private_keys
+          echo "$ASC_PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+
+      - name: Upload to App Store Connect
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          xcrun altool --upload-app \
+            --type ios \
+            --file app.ipa \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --output-format json
+
+      - name: Clean up
+        if: always()
+        run: |
+          rm -f app.ipa
+          rm -f ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
