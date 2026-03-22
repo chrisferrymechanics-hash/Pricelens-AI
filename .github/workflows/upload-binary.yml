@@ -11,7 +11,7 @@ on:
 jobs:
   upload-to-appstore:
     name: Upload IPA via xcrun altool
-    runs-on: macos-latest
+    runs-on: macos-13
 
     steps:
       - name: Download IPA
