@@ -35,11 +35,12 @@ jobs:
             fi
             mv "$IPA_FILE" app.ipa
           else
-            # Direct URL — use curl
-            HTTP_STATUS=$(curl -L -w "%{http_code}" -o app.ipa               -H "Authorization: Bearer $GH_TOKEN"               -H "Accept: application/octet-stream"               "$IPA_URL")
+            # Direct URL — plain curl, no auth header
+            HTTP_STATUS=$(curl -L -w "%{http_code}" -o app.ipa "$IPA_URL")
             echo "HTTP status: $HTTP_STATUS"
             if [ "$HTTP_STATUS" != "200" ]; then
               echo "ERROR: Failed to download IPA. HTTP status $HTTP_STATUS"
+              echo "Ensure the URL is a publicly accessible direct download link to a .ipa file."
               exit 1
             fi
           fi
