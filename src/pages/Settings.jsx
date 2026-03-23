@@ -142,6 +142,31 @@ export default function Settings() {
           <SubscriptionsManager />
         </div>
 
+        {/* App Info & Legal */}
+        <div className="bg-slate-800/50 border border-slate-700/50 rounded-2xl p-4 mb-6">
+          <button
+            onClick={() => navigate('/AppInfo')}
+            className="w-full flex items-center justify-between py-2 text-left"
+          >
+            <div className="flex items-center gap-3">
+              <Info className="w-5 h-5 text-slate-400" />
+              <span className="text-sm text-white">App Info, FAQ & Support</span>
+            </div>
+            <span className="text-slate-500 text-lg">›</span>
+          </button>
+          <div className="border-t border-slate-700/50 my-1" />
+          <button
+            onClick={() => navigate('/PrivacyPolicy')}
+            className="w-full flex items-center justify-between py-2 text-left"
+          >
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-slate-400" />
+              <span className="text-sm text-white">Privacy Policy</span>
+            </div>
+            <span className="text-slate-500 text-lg">›</span>
+          </button>
+        </div>
+
         {/* Danger Zone */}
         <div className="bg-red-500/5 border border-red-500/20 rounded-2xl p-6">
           <div className="flex items-center gap-2 mb-4">
