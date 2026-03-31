@@ -18,9 +18,10 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Price ID is required' }, { status: 400 });
     }
 
-    // Check if running in iframe (preview mode)
+    // Check if running in Base44 preview/sandbox iframe
+    const origin = req.headers.get('origin') || '';
     const referer = req.headers.get('referer') || '';
-    const isIframe = referer.includes('/preview/') || referer.includes('iframe');
+    const isIframe = origin.includes('preview-sandbox') || referer.includes('preview-sandbox');
 
     if (isIframe) {
       return Response.json({ 
