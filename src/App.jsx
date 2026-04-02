@@ -60,8 +60,7 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/PrivacyPolicy" element={<LayoutWrapper currentPageName="Privacy Policy"><PrivacyPolicy /></LayoutWrapper>} />
-      <Route path="/AppInfo" element={<LayoutWrapper currentPageName="App Info"><AppInfo /></LayoutWrapper>} />
+
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
@@ -75,7 +74,11 @@ function App() {
       <QueryClientProvider client={queryClientInstance}>
         <Router>
           <NavigationTracker />
-          <AuthenticatedApp />
+          <Routes>
+            <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+            <Route path="/AppInfo" element={<AppInfo />} />
+            <Route path="*" element={<AuthenticatedApp />} />
+          </Routes>
         </Router>
         <Toaster />
       </QueryClientProvider>
