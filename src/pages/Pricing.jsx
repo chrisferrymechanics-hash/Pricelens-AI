@@ -8,21 +8,6 @@ import { createPageUrl } from '@/utils';
 
 const plans = [
   {
-    name: 'Free',
-    price: '$0',
-    priceId: null,
-    description: 'Get started with basic features',
-    features: [
-      '5 evaluations per month',
-      'Basic price analysis',
-      'Camera & keyword search',
-      'Community support'
-    ],
-    buttonText: 'Free',
-    buttonVariant: 'outline',
-    isFree: true
-  },
-  {
     name: 'Premium',
     price: '$9.99',
     period: '/month',

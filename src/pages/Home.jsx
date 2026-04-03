@@ -128,7 +128,7 @@ export default function Home() {
     if (!user) return false;
     if (user.plan_type === 'premium') return true;
     if (user.credits > 0) return true;
-    if (evaluationCount < 5) return true;
+    if (evaluationCount < 4) return true;
     return false;
   };
 
@@ -490,7 +490,7 @@ Use real current market data. Prices in USD. Include actual working URLs.`
               ) : user.credits > 0 ? (
                 <span>{user.credits} credits remaining</span>
               ) : (
-                <span>{5 - evaluationCount} free evaluations remaining this month</span>
+                <span>{4 - evaluationCount} free evaluations remaining this month</span>
               )}
             </div>
           )}
