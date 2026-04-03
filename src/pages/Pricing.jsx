@@ -31,7 +31,6 @@ const plans = [
     description: 'Pay as you go with credits',
     features: [
       '10 evaluation credits',
-      'Never expires',
       'All features included',
       'Perfect for occasional use'
     ],
