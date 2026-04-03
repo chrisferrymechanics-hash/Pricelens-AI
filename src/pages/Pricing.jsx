@@ -30,7 +30,7 @@ const plans = [
     priceId: 'price_1Sy3wNIG0oshJ31BA58efeTq',
     description: 'Pay as you go with credits',
     features: [
-      '10 evaluation credits',
+      '20 evaluation credits',
       'All features included',
       'Perfect for occasional use'
     ],
