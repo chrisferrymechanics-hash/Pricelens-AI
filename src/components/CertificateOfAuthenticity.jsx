@@ -193,9 +193,22 @@ function CertPrint({ result, certId, issueDate }) {
       <div className="bg-amber-50 border border-amber-300 rounded p-3 mb-5">
         <div className="text-xs font-bold text-amber-700 uppercase mb-1 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Important Disclaimer</div>
         <p className="text-xs text-amber-700">
-          This document is an AI-generated preliminary assessment produced by Price Scout using computer vision and publicly available market data. It is <strong>not</strong> an official certification from PSA, BGS, CGC, PCGS, NGC, or any other professional grading service.
+          This document is an AI-generated preliminary assessment produced by Pricelens AI using computer vision and publicly available market data. It is <strong>not</strong> an official certification from PSA, BGS, CGC, PCGS, NGC, or any other professional grading service.
           This report is intended as a <strong>pre-submission guide</strong> to assist collectors in understanding potential item value and grading prospects. For official, legally recognised authentication and certification, the item must be physically submitted to the relevant professional grading service.
         </p>
+      </div>
+
+      {/* Terms & Legal */}
+      <div className="border border-gray-200 rounded p-4 mb-5 bg-gray-50">
+        <div className="text-xs font-bold text-gray-600 uppercase mb-2 flex items-center gap-1"><Info className="w-3 h-3" /> Terms of Use &amp; Legal Notice</div>
+        <div className="text-xs text-gray-500 space-y-1.5 leading-relaxed">
+          <p><strong>Informational Purposes Only:</strong> This assessment report is provided solely for informational and reference purposes. It does not constitute a professional appraisal, legal valuation, insurance valuation, or official certification of any kind.</p>
+          <p><strong>No Warranty:</strong> Pricelens AI makes no representations or warranties, express or implied, as to the accuracy, completeness, or fitness for any particular purpose of the information contained in this report. All valuations are AI-generated estimates and actual market values may differ significantly.</p>
+          <p><strong>Limitation of Liability:</strong> Pricelens AI, its directors, employees, and agents shall not be liable for any financial loss, damage, or other consequence arising from reliance on this report. Users assume all risk associated with any decisions made based on this document.</p>
+          <p><strong>Not a Substitute for Professional Advice:</strong> For high-value items, insurance purposes, estate planning, or legal proceedings, always obtain a valuation from a qualified, licensed professional appraiser or the relevant grading authority.</p>
+          <p><strong>Intellectual Property:</strong> This document is generated for the personal use of the registered user only and may not be reproduced, redistributed, or presented as an official certification to any third party.</p>
+          <p className="pt-1 border-t border-gray-200">By using Pricelens AI you agree to our Terms of Use. For full terms, privacy policy, and support, visit <span className="text-gray-700 underline">pricelensai.base44.app/AppInfo</span> or email <span className="text-gray-700">support@pricelensai.com</span>.</p>
+        </div>
       </div>
 
       {/* Footer */}
