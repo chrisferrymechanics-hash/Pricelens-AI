@@ -17,7 +17,6 @@ const plans = [
       'Unlimited evaluations',
       'Advanced AI analysis',
       'Collectibles identification',
-      'Priority support',
       'Full history access',
       'Export reports'
     ],
