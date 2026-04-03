@@ -86,14 +86,14 @@ export default function Pricing() {
       </div>
 
       {/* Pricing Cards */}
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="flex flex-col md:flex-row justify-center gap-6">
           {plans.map((plan, index) => (
             <motion.div
               key={plan.name}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.1 }}
-              className={`relative rounded-2xl p-6 ${
+              className={`relative rounded-2xl p-6 w-full md:w-80 ${
                 plan.highlight 
                   ? 'bg-gradient-to-b from-cyan-500/10 to-blue-500/10 border-2 border-cyan-500/30' 
                   : 'bg-slate-800/50 border border-slate-700/50'
