@@ -282,6 +282,89 @@ export default function ExportPDF({ item }) {
       });
     }
 
+    // ── Professional Endorsement ──────────────────────────
+    if (y > 210) { doc.addPage(); y = 16; }
+
+    doc.setDrawColor(226, 232, 240);
+    doc.line(margin, y, W - margin, y);
+    y += 7;
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30, 41, 59);
+    doc.text('Professional Endorsement & Independent Verification', margin, y);
+    y += 5;
+
+    doc.setFontSize(7.5);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('This section is for endorsement by a qualified appraiser or recognised industry expert confirming agreement with or amendments to the above AI-generated assessment.', margin, y, { maxWidth: contentW });
+    y += 9;
+
+    // Draw dashed border box
+    doc.setDrawColor(180, 180, 180);
+    doc.setLineDashPattern([2, 2], 0);
+    doc.rect(margin, y, contentW, 62, 'D');
+    doc.setLineDashPattern([], 0);
+
+    // Left column - Signature & Name
+    const col1X = margin + 4;
+    const col2X = margin + contentW / 2 + 4;
+    const colW = contentW / 2 - 8;
+
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 116, 139);
+    doc.text('QUALIFIED PROFESSIONAL SIGNATURE', col1X, y + 7);
+
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(160, 160, 160);
+    // Signature line
+    doc.setDrawColor(100, 116, 139);
+    doc.line(col1X, y + 20, col1X + colW, y + 20);
+    doc.setFontSize(6.5);
+    doc.text('Signature', col1X, y + 24);
+
+    // Name line
+    doc.setDrawColor(200, 200, 200);
+    doc.line(col1X, y + 34, col1X + colW, y + 34);
+    doc.text('Printed Name & Qualifications', col1X, y + 38);
+
+    // Date line
+    doc.line(col1X, y + 48, col1X + colW, y + 48);
+    doc.text('Date of Inspection', col1X, y + 52);
+
+    // Licence line
+    doc.line(col1X, y + 58, col1X + colW, y + 58);
+    doc.text('Licence / Membership No.', col1X, y + 62);
+
+    // Right column - Stamp
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(100, 116, 139);
+    doc.text('OFFICIAL STAMP / SEAL', col2X, y + 7);
+
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineDashPattern([1.5, 1.5], 0);
+    doc.rect(col2X, y + 10, colW, 38, 'D');
+    doc.setLineDashPattern([], 0);
+
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(180, 180, 180);
+    doc.text('Affix Professional', col2X + colW / 2, y + 26, { align: 'center' });
+    doc.text('Stamp or Seal Here', col2X + colW / 2, y + 31, { align: 'center' });
+
+    // Notes line at bottom of right column
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineDashPattern([], 0);
+    doc.line(col2X, y + 58, col2X + colW, y + 58);
+    doc.setFontSize(6.5);
+    doc.setTextColor(160, 160, 160);
+    doc.text('Professional Assessment Notes', col2X, y + 62);
+
+    y += 70;
+
     // ── Terms & Legal ─────────────────────────────────────
     if (y > 230) { doc.addPage(); y = 16; }
 

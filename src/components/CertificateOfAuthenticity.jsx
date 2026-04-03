@@ -198,6 +198,37 @@ function CertPrint({ result, certId, issueDate }) {
         </p>
       </div>
 
+      {/* Professional Endorsement */}
+      <div className="border-2 border-dashed border-gray-300 rounded p-5 mb-5">
+        <div className="text-xs font-bold text-gray-600 uppercase mb-4 text-center tracking-widest">Professional Endorsement & Independent Verification</div>
+        <div className="grid grid-cols-2 gap-6">
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-3">Qualified Professional Signature</div>
+            <div className="border-b border-gray-400 h-12 mb-2"></div>
+            <div className="text-xs text-gray-400">Signature</div>
+            <div className="border-b border-gray-300 h-8 mt-4 mb-2"></div>
+            <div className="text-xs text-gray-400">Printed Name &amp; Qualifications</div>
+            <div className="border-b border-gray-300 h-8 mt-4 mb-2"></div>
+            <div className="text-xs text-gray-400">Date of Inspection</div>
+          </div>
+          <div>
+            <div className="text-xs text-gray-500 uppercase tracking-wide mb-3">Official Stamp / Seal</div>
+            <div className="border-2 border-dashed border-gray-200 rounded-lg h-28 flex items-center justify-center">
+              <span className="text-xs text-gray-300 text-center px-2">Affix Professional<br/>Stamp or Seal Here</span>
+            </div>
+            <div className="border-b border-gray-300 h-8 mt-4 mb-2"></div>
+            <div className="text-xs text-gray-400">License / Membership No.</div>
+          </div>
+        </div>
+        <div className="mt-4 border-t border-gray-100 pt-3">
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-2">Professional Assessment Notes</div>
+          <div className="border border-gray-200 rounded h-16"></div>
+        </div>
+        <p className="text-xs text-gray-400 italic mt-3 text-center">
+          This section is for endorsement by a qualified appraiser, grading professional, or recognised industry expert confirming agreement with or amendments to the above AI-generated assessment.
+        </p>
+      </div>
+
       {/* Terms & Legal */}
       <div className="border border-gray-200 rounded p-4 mb-5 bg-gray-50">
         <div className="text-xs font-bold text-gray-600 uppercase mb-2 flex items-center gap-1"><Info className="w-3 h-3" /> Terms of Use &amp; Legal Notice</div>
