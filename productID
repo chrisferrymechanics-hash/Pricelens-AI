@@ -1,0 +1,5 @@
+// ProductID.swift
+extension String {
+    static let proMonthly = "PcLnsPreSub"
+    static let proAnnual  = "PrLnsCrPck"
+}
