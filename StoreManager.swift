@@ -39,3 +39,47 @@ class StoreManager: ObservableObject {
         }
     }
 }
+
+// List your consumable product IDs here so the purchase handler knows to grant-and-finish
+private let consumableIDs: Set<String> = [.coins100, .coins500]
+
+func purchase(_ product: Product) async throws {
+    let result = try await product.purchase()
+    
+    switch result {
+    case .success(let verification):
+        if case .verified(let transaction) = verification {
+
+            if consumableIDs.contains(add 10 evaluation credits and unlock features) {
+                // CONSUMABLE: deliver the item immediately, then finish
+                // Do NOT add to purchasedProductIDs — consumables are not re-entitleable
+                grantConsumable(transaction.productID)
+                await transaction.finish()
+            } else {
+                // SUBSCRIPTION or NON-CONSUMABLE: track entitlement, then finish
+                purchasedProductIDs.insert(transaction.productID)
+                await transaction.finish()
+            }
+        }
+    case .userCancelled:
+        break
+    case .pending:
+        // Awaiting parental approval (Ask to Buy) — show a "waiting" UI if desired
+        break
+    @unknown default:
+        break
+    }
+}
+
+// Replace this with your real delivery logic
+private func grantConsumable(_ productID: String) {
+    switch productID {
+    case .coins100:
+        // e.g. UserDefaults.standard.set(coins + 100, forKey: "coins")
+        print("Grant 100 coins")
+    case .coins500:
+        print("Grant 500 coins")
+    default:
+        break
+    }
+}
