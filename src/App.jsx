@@ -6,6 +6,7 @@ import { pagesConfig } from './pages.config'
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import PageNotFound from './lib/PageNotFound';
 import PrivacyPolicy from './pages/PrivacyPolicy';
+import Landing from './pages/Landing';
 import AppInfo from './pages/AppInfo';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
@@ -76,6 +77,7 @@ function App() {
           <NavigationTracker />
           <Routes>
             <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
+            <Route path="/Landing" element={<Landing />} />
             <Route path="/AppInfo" element={<AppInfo />} />
             <Route path="*" element={<AuthenticatedApp />} />
           </Routes>
