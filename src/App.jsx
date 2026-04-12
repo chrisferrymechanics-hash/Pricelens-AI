@@ -78,6 +78,7 @@ function App() {
           <Routes>
             <Route path="/PrivacyPolicy" element={<PrivacyPolicy />} />
             <Route path="/Landing" element={<Landing />} />
+            <Route path="/" element={<Landing />} />
             <Route path="/AppInfo" element={<AppInfo />} />
             <Route path="*" element={<AuthenticatedApp />} />
           </Routes>

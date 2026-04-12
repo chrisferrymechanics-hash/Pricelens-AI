@@ -34,7 +34,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How do I cancel my Premium subscription?',
-    a: 'Subscriptions are managed through our website. Go to Settings → tap "Manage Subscription" or contact us at support@pricelensai.com and we will cancel it for you. Your Premium access continues until the end of the billing period.', → tap "Manage Subscription" or contact us at support@pricelensai.com and we will cancel it for you. Your Premium access continues until the end of the billing period.', Go to your device\'s subscription settings to cancel. Your Premium access continues until the end of the billing period.',
+    a: 'Subscriptions are managed through our website. Go to Settings, tap "Manage Subscription", or contact us at support@pricelensai.com and we will cancel it for you. Your Premium access continues until the end of the billing period.',
   },
   {
     q: 'How do I delete my account?',
