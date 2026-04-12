@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Info, Mail, Shield, FileText, HelpCircle, ChevronDown, ChevronUp, Scan, Search, Star, Bell, Layers, ShoppingBag } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Info, Mail, Shield, FileText, HelpCircle, ChevronDown, ChevronUp, Scan, Search, Star, Bell, Layers, ShoppingBag, ArrowLeft } from 'lucide-react';
+import { useNavigate, Link } from 'react-router-dom';
 
 const FAQ_ITEMS = [
   {
@@ -34,7 +34,7 @@ const FAQ_ITEMS = [
   },
   {
     q: 'How do I cancel my Premium subscription?',
-    a: 'Subscriptions are managed through the App Store or Google Play. Go to your device\'s subscription settings to cancel. Your Premium access continues until the end of the billing period.',
+    a: 'Subscriptions are managed through our website. Go to Settings → tap "Manage Subscription" or contact us at support@pricelensai.com and we will cancel it for you. Your Premium access continues until the end of the billing period.', → tap "Manage Subscription" or contact us at support@pricelensai.com and we will cancel it for you. Your Premium access continues until the end of the billing period.', Go to your device\'s subscription settings to cancel. Your Premium access continues until the end of the billing period.',
   },
   {
     q: 'How do I delete my account?',
@@ -74,6 +74,11 @@ export default function AppInfo() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-6">
+      <div className="mb-4">
+        <Link to="/Landing" className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 text-sm font-medium transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Back to Home
+        </Link>
+      </div>
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
 
         {/* About */}
