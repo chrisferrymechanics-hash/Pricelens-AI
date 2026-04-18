@@ -70,15 +70,3 @@ jobs:
         run: |
           rm -f app.ipa
           rm -f ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
-- name: Upload to App Store Connect
-  env:
-    ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-    ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-  run: |
-    xcrun altool --upload-app \
-      --type ios \
-      --file app.ipa \
-      --apiKey "$ASC_KEY_ID" \
-      --apiIssuer "$ASC_ISSUER_ID" \
-      --bundle-id "com.yourcompany.yourapp" \
-      --output-format json
