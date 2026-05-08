@@ -71,9 +71,8 @@ export default function Landing() {
             <span className="text-cyan-400 text-sm font-medium">AI-Powered Price Intelligence</span>
           </div>
           <h1 className="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-            Know What Your<br />
             <span className="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
-              Items Are Worth
+              PriceLens AI
             </span>
           </h1>
           <p className="text-slate-400 text-lg md:text-xl max-w-2xl mx-auto mb-10">
