@@ -10,7 +10,7 @@ on:
 
 jobs:
   upload-to-appstore:
-    name: Upload IPA via xcrun altool
+    name: Upload IPA to ASC
     runs-on: macos-latest
 
     steps:
@@ -35,35 +35,91 @@ jobs:
             fi
             mv "$IPA_FILE" app.ipa
           else
-            # Direct URL — plain curl, no auth header
+            # Direct URL — plain curl
             HTTP_STATUS=$(curl -L -w "%{http_code}" -o app.ipa "$IPA_URL")
             echo "HTTP status: $HTTP_STATUS"
             if [ "$HTTP_STATUS" != "200" ]; then
               echo "ERROR: Failed to download IPA. HTTP status $HTTP_STATUS"
-              echo "Ensure the URL is a publicly accessible direct download link to a .ipa file."
               exit 1
             fi
           fi
           ls -lh app.ipa
+
+      - name: Inspect IPA contents
+        run: |
+          echo "--- IPA file list ---"
+          unzip -l app.ipa | head -40
+
+          echo "--- Extracting Info.plist ---"
+          # Find the app bundle inside Payload/
+          APP_DIR=$(unzip -l app.ipa | grep "Payload/.*.app/Info.plist" | awk '{print $4}' | head -1)
+          echo "Info.plist path in IPA: $APP_DIR"
+
+          if [ -n "$APP_DIR" ]; then
+            unzip -p app.ipa "$APP_DIR" > /tmp/Info.plist
+            echo "--- Full Info.plist ---"
+            plutil -p /tmp/Info.plist 2>/dev/null || cat /tmp/Info.plist
+
+            BUNDLE_ID=$(plutil -extract CFBundleIdentifier raw /tmp/Info.plist 2>/dev/null || echo "COULD NOT EXTRACT")
+            BUILD_NUMBER=$(plutil -extract CFBundleVersion raw /tmp/Info.plist 2>/dev/null || echo "COULD NOT EXTRACT")
+            VERSION=$(plutil -extract CFBundleShortVersionString raw /tmp/Info.plist 2>/dev/null || echo "COULD NOT EXTRACT")
+
+            echo "=========================================="
+            echo "Bundle ID    : $BUNDLE_ID"
+            echo "Version      : $VERSION"
+            echo "Build Number : $BUILD_NUMBER"
+            echo "=========================================="
+          else
+            echo "ERROR: Could not find Info.plist inside IPA — the IPA structure may be malformed."
+            unzip -l app.ipa
+            exit 1
+          fi
+
+          echo "--- Embedded provisioning profile ---"
+          PP_PATH=$(unzip -l app.ipa | grep "embedded.mobileprovision" | awk '{print $4}' | head -1)
+          if [ -n "$PP_PATH" ]; then
+            unzip -p app.ipa "$PP_PATH" > /tmp/embedded.mobileprovision
+            security cms -D -i /tmp/embedded.mobileprovision 2>/dev/null | plutil -extract Entitlements.application-identifier raw - 2>/dev/null ||               security cms -D -i /tmp/embedded.mobileprovision 2>/dev/null | grep -A2 "application-identifier" | head -5 || true
+            echo "Profile name: $(security cms -D -i /tmp/embedded.mobileprovision 2>/dev/null | plutil -extract Name raw - 2>/dev/null || echo unknown)"
+            echo "Profile type: $(security cms -D -i /tmp/embedded.mobileprovision 2>/dev/null | plutil -extract ProvisionsAllDevices raw - 2>/dev/null && echo 'Distribution' || echo 'Development/AdHoc')"
+          else
+            echo "WARNING: No embedded.mobileprovision found — IPA may not be signed for distribution"
+          fi
 
       - name: Write API key
         env:
           ASC_PRIVATE_KEY: ${{ secrets.ASC_PRIVATE_KEY }}
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
-          echo "$ASC_PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+          printf '%s' "$ASC_PRIVATE_KEY" > ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8
+          echo "Key file written: $(wc -c < ~/.appstoreconnect/private_keys/AuthKey_${{ secrets.ASC_KEY_ID }}.p8) bytes"
+
+      - name: Validate IPA before upload
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          echo "--- Validating IPA ---"
+          xcrun altool --validate-app \
+            --type ios \
+            --file app.ipa \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID" \
+            --output-format json 2>&1 || true
 
       - name: Upload to App Store Connect
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
         run: |
+          echo "--- Uploading IPA ---"
           xcrun altool --upload-app \
             --type ios \
             --file app.ipa \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID" \
-            --output-format json
+            --output-format json 2>&1
+          echo "Upload exit code: $?"
 
       - name: Clean up
         if: always()
