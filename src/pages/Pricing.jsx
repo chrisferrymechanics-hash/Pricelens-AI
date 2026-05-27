@@ -4,7 +4,6 @@ import { motion } from 'framer-motion';
 import { Check, Sparkles, Zap, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 
 const plans = [
   {
@@ -42,7 +41,7 @@ export default function Pricing() {
   const navigate = useNavigate();
 
   const handleFreePlan = () => {
-    navigate(createPageUrl('Home'));
+    navigate('/Home');
   };
 
   const handleCheckout = async (priceId, planName, planType) => {
