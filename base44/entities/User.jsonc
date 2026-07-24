@@ -1,0 +1,32 @@
+{
+  "name": "User",
+  "type": "object",
+  "properties": {
+    "plan_type": {
+      "type": "string",
+      "enum": [
+        "free",
+        "premium"
+      ],
+      "default": "free",
+      "description": "Current subscription plan"
+    },
+    "credits": {
+      "type": "number",
+      "default": 0,
+      "description": "Available evaluation credits"
+    },
+    "stripe_customer_id": {
+      "type": "string",
+      "description": "Stripe customer ID"
+    },
+    "stripe_subscription_id": {
+      "type": "string",
+      "description": "Stripe subscription ID for premium users"
+    }
+  },
+  "required": [
+    "stripe_customer_id",
+    "stripe_subscription_id"
+  ]
+}

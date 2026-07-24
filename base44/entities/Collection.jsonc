@@ -1,0 +1,55 @@
+{
+  "name": "Collection",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Collection name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description"
+    },
+    "color": {
+      "type": "string",
+      "description": "Accent color for the collection card"
+    },
+    "item_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Array of PriceEvaluation IDs in this collection"
+    },
+    "snapshot_value_low": {
+      "type": "number",
+      "description": "Total estimated value low at time of last snapshot"
+    },
+    "snapshot_value_high": {
+      "type": "number",
+      "description": "Total estimated value high at time of last snapshot"
+    },
+    "snapshot_date": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the snapshot was taken"
+    }
+  },
+  "required": [
+    "name"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

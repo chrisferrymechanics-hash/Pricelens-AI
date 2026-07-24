@@ -1,0 +1,55 @@
+{
+  "name": "Subscription",
+  "type": "object",
+  "properties": {
+    "keyword": {
+      "type": "string",
+      "description": "The item keyword or phrase to watch for"
+    },
+    "max_price": {
+      "type": "number",
+      "description": "Maximum price user is willing to pay (alert if listing is below this AND below market value)"
+    },
+    "category": {
+      "type": "string",
+      "description": "Optional category filter"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "Whether this subscription is active"
+    },
+    "last_checked": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last time this subscription was checked"
+    },
+    "alert_count": {
+      "type": "number",
+      "default": 0,
+      "description": "Number of alerts sent so far"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email address to send alerts to"
+    }
+  },
+  "required": [
+    "keyword",
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

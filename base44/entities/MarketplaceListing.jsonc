@@ -1,0 +1,135 @@
+{
+  "name": "MarketplaceListing",
+  "type": "object",
+  "properties": {
+    "evaluation_id": {
+      "type": "string",
+      "description": "Reference to the PriceEvaluation that this listing is based on"
+    },
+    "platform": {
+      "type": "string",
+      "enum": [
+        "ebay",
+        "etsy",
+        "amazon"
+      ],
+      "description": "Marketplace platform"
+    },
+    "platform_listing_id": {
+      "type": "string",
+      "description": "Unique listing ID from the marketplace"
+    },
+    "title": {
+      "type": "string",
+      "description": "Listing title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Full listing description"
+    },
+    "price": {
+      "type": "number",
+      "description": "Listing price"
+    },
+    "quantity": {
+      "type": "number",
+      "default": 1,
+      "description": "Available quantity"
+    },
+    "quantity_sold": {
+      "type": "number",
+      "default": 0,
+      "description": "Quantity sold"
+    },
+    "category": {
+      "type": "string",
+      "description": "Marketplace category"
+    },
+    "condition": {
+      "type": "string",
+      "enum": [
+        "new",
+        "like_new",
+        "used_excellent",
+        "used_good",
+        "used_fair"
+      ],
+      "description": "Item condition"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Image URLs"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "draft",
+        "pending",
+        "active",
+        "sold",
+        "ended",
+        "failed"
+      ],
+      "default": "draft",
+      "description": "Listing status"
+    },
+    "listing_url": {
+      "type": "string",
+      "description": "Direct URL to the listing"
+    },
+    "last_synced": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Last sync timestamp"
+    },
+    "sync_errors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Sync error messages"
+    },
+    "sales_data": {
+      "type": "object",
+      "properties": {
+        "total_views": {
+          "type": "number"
+        },
+        "total_watchers": {
+          "type": "number"
+        },
+        "sale_date": {
+          "type": "string"
+        },
+        "sale_price": {
+          "type": "number"
+        },
+        "buyer_username": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "required": [
+    "platform",
+    "title",
+    "price"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

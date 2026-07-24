@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.40';
 import Stripe from 'npm:stripe@17.5.0';
 
 Deno.serve(async (req) => {
@@ -42,13 +42,13 @@ Deno.serve(async (req) => {
         const user = users[0];
 
         if (session.mode === 'subscription') {
-          // Premium subscription purchase
+          // Subscription purchase — use plan_type from metadata (pro/premium)
           await base44.asServiceRole.entities.User.update(user.id, {
-            plan_type: 'premium',
+            plan_type: planType,
             subscription_id: session.subscription,
             subscription_status: 'active'
           });
-          console.log('User upgraded to premium:', userEmail);
+          console.log('User upgraded to', planType, ':', userEmail);
         } else if (session.mode === 'payment') {
           // Credit pack purchase — add 20 credits
           const currentCredits = user.credits || 0;
@@ -83,9 +83,10 @@ Deno.serve(async (req) => {
 
         const users = await base44.asServiceRole.entities.User.filter({ subscription_id: subscription.id });
         if (users && users.length > 0) {
+          const subPlanType = subscription.metadata?.plan_type || 'premium';
           await base44.asServiceRole.entities.User.update(users[0].id, {
             subscription_status: subscription.status,
-            plan_type: isActive ? 'premium' : 'free'
+            plan_type: isActive ? subPlanType : 'free'
           });
         }
         break;

@@ -1,0 +1,70 @@
+{
+  "name": "BuyOpportunity",
+  "type": "object",
+  "properties": {
+    "watchlist_item_id": {
+      "type": "string",
+      "description": "Reference to the WatchlistItem"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name for quick display"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "user_email": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string",
+      "description": "Marketplace platform name (e.g. eBay, Etsy)"
+    },
+    "listing_title": {
+      "type": "string",
+      "description": "Title of the found listing"
+    },
+    "listing_url": {
+      "type": "string",
+      "description": "Direct link to the listing"
+    },
+    "listing_price": {
+      "type": "number",
+      "description": "Price found on the marketplace"
+    },
+    "historical_avg": {
+      "type": "number",
+      "description": "Historical average market value for this item"
+    },
+    "discount_pct": {
+      "type": "number",
+      "description": "How far below the average this listing is (positive = below avg)"
+    },
+    "is_dismissed": {
+      "type": "boolean",
+      "default": false
+    },
+    "scanned_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "item_name",
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

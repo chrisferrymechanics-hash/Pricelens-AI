@@ -1,0 +1,365 @@
+{
+  "name": "PriceEvaluation",
+  "type": "object",
+  "properties": {
+    "image_url": {
+      "type": "string",
+      "description": "URL of the uploaded item image"
+    },
+    "front_image_url": {
+      "type": "string",
+      "description": "URL of front image for collectibles"
+    },
+    "back_image_url": {
+      "type": "string",
+      "description": "URL of back image for collectibles"
+    },
+    "additional_image_urls": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Additional image URLs for comprehensive analysis"
+    },
+    "search_query": {
+      "type": "string",
+      "description": "Keyword search query used"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Identified name of the item"
+    },
+    "item_description": {
+      "type": "string",
+      "description": "Brief description of the item"
+    },
+    "category": {
+      "type": "string"
+    },
+    "collectible_type": {
+      "type": "string",
+      "enum": [
+        "coin",
+        "stamp",
+        "comic",
+        "trading_card",
+        "antique",
+        "memorabilia",
+        "other"
+      ]
+    },
+    "rarity": {
+      "type": "string",
+      "enum": [
+        "common",
+        "uncommon",
+        "rare",
+        "very_rare",
+        "extremely_rare",
+        "legendary"
+      ]
+    },
+    "rarity_score": {
+      "type": "number"
+    },
+    "key_identifiers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "serial_number": {
+      "type": "string",
+      "description": "Serial number or unique identifier found on the item"
+    },
+    "mint_mark": {
+      "type": "string",
+      "description": "Mint mark for coins or manufacturing mark"
+    },
+    "artist_signature": {
+      "type": "string",
+      "description": "Artist signature or autograph detected"
+    },
+    "year": {
+      "type": "string",
+      "description": "Year of production or issue"
+    },
+    "edition": {
+      "type": "string",
+      "description": "Edition number or variant information"
+    },
+    "authenticity": {
+      "type": "object",
+      "properties": {
+        "confidence": {
+          "type": "number"
+        },
+        "notes": {
+          "type": "string"
+        }
+      }
+    },
+    "grading_recommendation": {
+      "type": "string"
+    },
+    "grading_service": {
+      "type": "string",
+      "description": "Recommended grading service (PSA, PCGS, NGC, CGC, etc.)"
+    },
+    "grading_estimates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "service": {
+            "type": "string",
+            "description": "Grading company (PSA, BGS, CGC, PCGS, NGC, etc.)"
+          },
+          "scale": {
+            "type": "string",
+            "description": "The grading scale (e.g., 1-10, 1-70)"
+          },
+          "estimated_grade": {
+            "type": "string",
+            "description": "Estimated grade on this service's scale"
+          },
+          "numeric_grade": {
+            "type": "number",
+            "description": "Numeric grade value"
+          },
+          "subgrades": {
+            "type": "object",
+            "description": "Subgrades if applicable (e.g., BGS centering, corners, edges, surface)"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "Grading estimates from multiple services"
+    },
+    "grading_standards": {
+      "type": "object",
+      "properties": {
+        "service": {
+          "type": "string"
+        },
+        "scale": {
+          "type": "string"
+        },
+        "estimated_grade": {
+          "type": "string"
+        },
+        "criteria": {
+          "type": "string"
+        }
+      }
+    },
+    "historical_sales": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "price": {
+            "type": "number"
+          },
+          "grade": {
+            "type": "string"
+          },
+          "grading_service": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "estimated_value_low": {
+      "type": "number"
+    },
+    "estimated_value_high": {
+      "type": "number"
+    },
+    "graded_value_low": {
+      "type": "number"
+    },
+    "graded_value_high": {
+      "type": "number"
+    },
+    "value_by_grade": {
+      "type": "object",
+      "description": "Value ranges for different grade levels"
+    },
+    "trading_platforms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "price_range": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "is_specialized": {
+            "type": "boolean"
+          },
+          "is_local": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "condition_estimate": {
+      "type": "string",
+      "enum": [
+        "new",
+        "like_new",
+        "good",
+        "fair",
+        "poor"
+      ]
+    },
+    "condition_score": {
+      "type": "number"
+    },
+    "condition_details": {
+      "type": "object",
+      "properties": {
+        "summary": {
+          "type": "string"
+        },
+        "defects_found": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "severity": {
+                "type": "string"
+              },
+              "location": {
+                "type": "string"
+              },
+              "price_impact": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "wear_level": {
+          "type": "string"
+        },
+        "functionality_assessment": {
+          "type": "string"
+        },
+        "cosmetic_rating": {
+          "type": "number"
+        },
+        "completeness": {
+          "type": "string"
+        }
+      }
+    },
+    "new_price_low": {
+      "type": "number"
+    },
+    "new_price_high": {
+      "type": "number"
+    },
+    "secondhand_price_low": {
+      "type": "number"
+    },
+    "secondhand_price_high": {
+      "type": "number"
+    },
+    "auction_price_low": {
+      "type": "number"
+    },
+    "auction_price_high": {
+      "type": "number"
+    },
+    "buy_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "price_range": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "is_local": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "sell_recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "platform": {
+            "type": "string"
+          },
+          "expected_price": {
+            "type": "string"
+          },
+          "fees": {
+            "type": "string"
+          },
+          "time_to_sell": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string"
+          },
+          "is_local": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "currency": {
+      "type": "string",
+      "default": "USD"
+    }
+  },
+  "required": [
+    "item_name"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}

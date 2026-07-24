@@ -1,0 +1,72 @@
+{
+  "name": "WatchlistItem",
+  "type": "object",
+  "properties": {
+    "evaluation_id": {
+      "type": "string",
+      "description": "Reference to the PriceEvaluation record"
+    },
+    "item_name": {
+      "type": "string",
+      "description": "Item name (cached for quick display)"
+    },
+    "item_description": {
+      "type": "string"
+    },
+    "image_url": {
+      "type": "string"
+    },
+    "category": {
+      "type": "string"
+    },
+    "collectible_type": {
+      "type": "string"
+    },
+    "search_query": {
+      "type": "string"
+    },
+    "last_known_value_low": {
+      "type": "number",
+      "description": "Last known estimated value low"
+    },
+    "last_known_value_high": {
+      "type": "number",
+      "description": "Last known estimated value high"
+    },
+    "user_email": {
+      "type": "string",
+      "description": "Email for price update notifications"
+    },
+    "last_checked": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_alert_value_low": {
+      "type": "number",
+      "description": "Value at time of last alert to avoid repeated alerts"
+    },
+    "alert_threshold": {
+      "type": "number",
+      "default": 10,
+      "description": "Percentage change required to trigger a price alert (e.g. 5, 10, 15, 20)"
+    }
+  },
+  "required": [
+    "item_name",
+    "user_email"
+  ],
+  "rls": {
+    "create": {
+      "created_by": "{{user.email}}"
+    },
+    "read": {
+      "created_by": "{{user.email}}"
+    },
+    "update": {
+      "created_by": "{{user.email}}"
+    },
+    "delete": {
+      "created_by": "{{user.email}}"
+    }
+  }
+}
