@@ -23,6 +23,13 @@ Deno.serve(async (req) => {
     switch (event.type) {
       case 'checkout.session.completed': {
         const session = event.data.object;
+
+        // Skip Base44 merchant self-test charges
+        if (session.metadata?.base44_test_checkout === 'true') {
+          console.log('Skipping Base44 test checkout:', session.id);
+          break;
+        }
+
         const userEmail = session.metadata?.user_email || session.customer_email;
         const planType = session.metadata?.plan_type || 'premium';
 
