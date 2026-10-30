@@ -21,12 +21,19 @@ Deno.serve(async (req) => {
     }
 
     switch (event.type) {
-      case 'checkout.session.completed': {
+      case 'checkout.session.completed':
+      case 'checkout.session.async_payment_succeeded': {
         const session = event.data.object;
 
         // Skip Base44 merchant self-test charges
         if (session.metadata?.base44_test_checkout === 'true') {
           console.log('Skipping Base44 test checkout:', session.id);
+          break;
+        }
+
+        // Access is granted only once payment is actually confirmed
+        if (session.payment_status !== 'paid') {
+          console.log('Payment not confirmed yet — session:', session.id, 'status:', session.payment_status);
           break;
         }
 
@@ -83,6 +90,7 @@ Deno.serve(async (req) => {
         break;
       }
 
+      case 'customer.subscription.created':
       case 'customer.subscription.updated': {
         const subscription = event.data.object;
         const isActive = subscription.status === 'active';

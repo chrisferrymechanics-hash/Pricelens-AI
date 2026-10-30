@@ -47,20 +47,29 @@ export default function Pricing() {
   const handleCheckout = async (priceId, planName, planType) => {
     if (!priceId) return;
 
+    // Open the checkout tab synchronously so popup blockers keep the click activation
+    const isFramed = window.self !== window.top;
+    const checkoutTab = isFramed ? window.open('', '_blank') : null;
+    if (isFramed && !checkoutTab) {
+      alert('Allow popups to continue to checkout.');
+      return;
+    }
+    if (checkoutTab) checkoutTab.opener = null;
+
     try {
       setLoading(priceId);
       const response = await base44.functions.invoke('createCheckout', { priceId, planType });
 
-      if (response.data.isIframeError) {
-        alert('Checkout is not available in preview mode. Please publish your app and open it in a new tab.');
-        setLoading(null);
-        return;
-      }
+      const url = response.data?.url;
+      if (!url) throw new Error('No checkout URL returned');
 
-      if (response.data.url) {
-        window.location.href = response.data.url;
+      if (checkoutTab) {
+        checkoutTab.location.replace(url);
+      } else {
+        window.location.assign(url);
       }
     } catch (error) {
+      checkoutTab?.close();
       console.error('Checkout error:', error);
       alert('Failed to start checkout. Please try again.');
       setLoading(null);

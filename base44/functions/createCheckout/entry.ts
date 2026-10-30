@@ -17,39 +17,39 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Price ID is required' }, { status: 400 });
     }
 
-    // Check if running in Base44 preview/sandbox iframe
-    const origin = req.headers.get('origin') || '';
-    const referer = req.headers.get('referer') || '';
-    const isIframe = origin.includes('preview-sandbox') || referer.includes('preview-sandbox');
-
-    if (isIframe) {
-      return Response.json({ 
-        error: 'Checkout is not available in preview mode. Please open the published app.',
-        isIframeError: true 
-      }, { status: 400 });
+    // Return URLs must come from the server-set app URL header — never Origin or Host.
+    const appUrl = req.headers.get('X-Base44-App-Url');
+    if (!appUrl) {
+      console.error('Missing X-Base44-App-Url header — cannot build return URLs');
+      return Response.json({ error: 'App URL unavailable' }, { status: 400 });
     }
+    const baseUrl = appUrl.replace(/\/$/, '');
 
     const price = await stripe.prices.retrieve(priceId);
     const isRecurring = price.type === 'recurring';
+
+    const metadata = {
+      base44_app_id: Deno.env.get('BASE44_APP_ID'),
+      user_email: user.email,
+      plan_type: planType || 'premium'
+    };
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{ price: priceId, quantity: 1 }],
       mode: isRecurring ? 'subscription' : 'payment',
-      success_url: `${req.headers.get('origin') || 'https://your-app.com'}/CheckoutSuccess?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get('origin') || 'https://your-app.com'}/Pricing`,
+      success_url: `${baseUrl}/CheckoutSuccess?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/Pricing`,
       customer_email: user.email,
-      metadata: {
-        base44_app_id: Deno.env.get('BASE44_APP_ID'),
-        user_email: user.email,
-        plan_type: planType || 'premium'
-      }
+      metadata,
+      // Subscriptions carry app tracking metadata on the subscription itself
+      ...(isRecurring ? { subscription_data: { metadata } } : {})
     });
 
-    console.log('Checkout session created:', session.id, 'for:', user.email);
+    console.log('Checkout session created:', session.id, 'for:', user.email, 'mode:', session.mode);
     return Response.json({ sessionId: session.id, url: session.url });
   } catch (error) {
-    console.error('Checkout error:', error);
+    console.error('Checkout error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
