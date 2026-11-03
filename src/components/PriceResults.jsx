@@ -79,6 +79,12 @@ function RecommendationItem({ rec, type, index }) {
 export default function PriceResults({ result, onBack, onSearchSimilar }) {
   if (!result) return null;
 
+  const priceCards = [
+    { title: 'New', icon: Package, low: result.new_price_low, high: result.new_price_high, color: 'cyan' },
+    { title: 'Used', icon: RefreshCw, low: result.secondhand_price_low, high: result.secondhand_price_high, color: 'purple' },
+    { title: 'Auction', icon: Gavel, low: result.auction_price_low, high: result.auction_price_high, color: 'amber' },
+  ].filter((card) => card.low || card.high);
+
   const handleRefresh = async () => {
     // Re-trigger search for same item
     if (result.search_query) {
@@ -143,33 +149,22 @@ export default function PriceResults({ result, onBack, onSearchSimilar }) {
         </div>
       </div>
 
-      {/* Price Cards */}
-      <div className="grid grid-cols-3 gap-3">
-        <PriceCard
-          title="New"
-          icon={Package}
-          lowPrice={result.new_price_low || 0}
-          highPrice={result.new_price_high || 0}
-          color="cyan"
-          delay={0.1}
-        />
-        <PriceCard
-          title="Used"
-          icon={RefreshCw}
-          lowPrice={result.secondhand_price_low || 0}
-          highPrice={result.secondhand_price_high || 0}
-          color="purple"
-          delay={0.2}
-        />
-        <PriceCard
-          title="Auction"
-          icon={Gavel}
-          lowPrice={result.auction_price_low || 0}
-          highPrice={result.auction_price_high || 0}
-          color="amber"
-          delay={0.3}
-        />
-      </div>
+      {/* Price Cards — a segment with no verified price is hidden, never shown as $0 */}
+      {priceCards.length > 0 && (
+        <div className={`grid gap-3 ${priceCards.length === 3 ? 'grid-cols-3' : priceCards.length === 2 ? 'grid-cols-2' : 'grid-cols-1'}`}>
+          {priceCards.map((card, i) => (
+            <PriceCard
+              key={card.title}
+              title={card.title}
+              icon={card.icon}
+              lowPrice={card.low}
+              highPrice={card.high}
+              color={card.color}
+              delay={0.1 * (i + 1)}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Buy Recommendations */}
       {result.buy_recommendations?.length > 0 && (

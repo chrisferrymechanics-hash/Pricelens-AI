@@ -14,6 +14,25 @@ import {
   CONDITION_LEVELS,
 } from '@/lib/ai/grounding';
 
+// A link must lead to the item or a listing page — a bare marketplace homepage is a dead end.
+const listingUrl = (value) => {
+  const url = safeUrl(value);
+  if (!url) return null;
+  try {
+    const path = new URL(url).pathname.replace(/\/+$/, '');
+    return path === '' ? null : url;
+  } catch {
+    return null;
+  }
+};
+
+// Price strings render beside numeric cards, so they must read as currency.
+const priceText = (value) => {
+  const text = cleanText(value, '');
+  if (!text || text.includes('$') || !/\d/.test(text)) return text;
+  return text.replace(/(\d[\d,]*(?:\.\d+)?)/g, (match) => `$${match}`);
+};
+
 const cleanDefects = (value) =>
   asArray(value)
     .map((defect) => ({
@@ -28,8 +47,8 @@ const cleanBuyRecs = (value) =>
   dedupeBy(asArray(value), (rec) => cleanText(rec?.platform)?.toLowerCase())
     .map((rec) => ({
       platform: cleanText(rec?.platform, 'Marketplace'),
-      price_range: cleanText(rec?.price_range, ''),
-      url: safeUrl(rec?.url),
+      price_range: priceText(rec?.price_range),
+      url: listingUrl(rec?.url),
       is_local: Boolean(rec?.is_local),
     }))
     .slice(0, 5);
@@ -38,10 +57,10 @@ const cleanSellRecs = (value) =>
   dedupeBy(asArray(value), (rec) => cleanText(rec?.platform)?.toLowerCase())
     .map((rec) => ({
       platform: cleanText(rec?.platform, 'Marketplace'),
-      expected_price: cleanText(rec?.expected_price, ''),
+      expected_price: priceText(rec?.expected_price),
       fees: cleanText(rec?.fees, ''),
       time_to_sell: cleanText(rec?.time_to_sell, ''),
-      url: safeUrl(rec?.url),
+      url: listingUrl(rec?.url),
       is_local: Boolean(rec?.is_local),
     }))
     .slice(0, 5);
@@ -109,7 +128,7 @@ function cleanHistoricalSales(value) {
       grade: cleanText(sale?.grade, ''),
       grading_service: cleanText(sale?.grading_service, ''),
       platform: cleanText(sale?.platform, ''),
-      url: safeUrl(sale?.url),
+      url: listingUrl(sale?.url),
     })),
     (sale) => `${sale.date}|${sale.price}|${sale.platform}`
   )
@@ -150,7 +169,7 @@ export function normalizeCollectible(raw) {
     trading_platforms: dedupeBy(asArray(data.trading_platforms), (p) => cleanText(p?.name)?.toLowerCase())
       .map((platform) => ({
         name: cleanText(platform?.name, 'Platform'),
-        price_range: cleanText(platform?.price_range, ''),
+        price_range: priceText(platform?.price_range),
         url: safeUrl(platform?.url),
         notes: cleanText(platform?.notes, ''),
         is_specialized: Boolean(platform?.is_specialized),
