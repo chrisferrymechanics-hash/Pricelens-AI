@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, ChevronDown, DollarSign, FileText, Store, TrendingUp, Lightbulb, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { base44 } from '@/api/base44Client';
+import { runAI } from '@/lib/ai/runAI';
+import { GROUNDING_RULES } from '@/lib/ai/prompts';
 
 export default function SellingAssistant({ result }) {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -19,7 +20,7 @@ export default function SellingAssistant({ result }) {
     setIsExpanded(true);
 
     try {
-      const response = await base44.integrations.Core.InvokeLLM({
+      const response = await runAI({
       prompt: `You are a top-tier marketplace consultant who has sold thousands of items. Your goal is to help this seller get the MAXIMUM price in the MINIMUM time.
 
       ITEM DETAILS:
@@ -67,8 +68,10 @@ export default function SellingAssistant({ result }) {
       - 3 specific tactics to trigger faster offers (e.g. "Best Offer" enabled, free shipping threshold, bundle deals)
       - 2 red flags in buyer messages to watch for
 
-      Be decisive. Give specific numbers. No vague advice.`,
-        response_json_schema: {
+      Be decisive. Give specific numbers. No vague advice.
+      Base every price on the market data provided above; if a figure is missing, say it is unverified rather than inventing one.
+      ${GROUNDING_RULES}`,
+        schema: {
           type: "object",
           properties: {
             pricing_strategy: {

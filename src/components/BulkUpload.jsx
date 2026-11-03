@@ -1,5 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
+import { runAI } from '@/lib/ai/runAI';
+import { GROUNDING_RULES } from '@/lib/ai/prompts';
+import { normalizeBulkResult } from '@/lib/ai/normalize';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Upload, X, Zap, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -43,11 +46,12 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
       setProgress({ current: i + 1, total: files.length });
       const { file_url } = await base44.integrations.Core.UploadFile({ file: files[i].file });
 
-      const res = await base44.integrations.Core.InvokeLLM({
-        prompt: `Analyze this item image. Identify the item, assess its condition, and search the internet for current market prices. Return a concise pricing summary.`,
-        add_context_from_internet: true,
-        file_urls: [file_url],
-        response_json_schema: {
+      const raw = await runAI({
+        prompt: `Analyze this item image. Identify the item, assess its visible condition, and retrieve current market prices with live comps. Return a concise pricing summary.
+
+${GROUNDING_RULES}`,
+        fileUrls: [file_url],
+        schema: {
           type: "object",
           properties: {
             item_name: { type: "string" },
@@ -64,6 +68,7 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
           }
         }
       });
+      const res = normalizeBulkResult(raw);
 
       batchResults.push({ ...res, preview: files[i].preview, file_url });
 

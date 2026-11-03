@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { invokeStructured, isRealUrl, MARKET_RULES } from '../../shared/aiMarket.ts';
 
 /**
  * scanMarketplaceBuys
@@ -75,6 +76,8 @@ Search eBay active listings, eBay sold, Etsy, and any specialist platforms for t
 Return UP TO 3 real listings that meet the discount threshold. Only include listings with an ACTUAL URL you found.
 If no qualifying listings exist, return an empty array.
 
+${MARKET_RULES}
+
 Return ONLY valid JSON matching this schema:
 {
   "listings": [
@@ -88,10 +91,9 @@ Return ONLY valid JSON matching this schema:
 }
 `.trim();
 
-        const response = await sr.integrations.Core.InvokeLLM({
+        const response = await invokeStructured(sr, {
           prompt,
-          add_context_from_internet: true,
-          response_json_schema: {
+          schema: {
             type: 'object',
             properties: {
               listings: {
@@ -122,8 +124,9 @@ Return ONLY valid JSON matching this schema:
           const discountPct = ((historicalAvg - listing.listing_price) / historicalAvg) * 100;
           if (discountPct < threshold) continue;
 
-          if (!listing.listing_url || existingUrls.has(listing.listing_url)) continue;
-          existingUrls.add(listing.listing_url);
+          const listingUrl = isRealUrl(listing.listing_url);
+          if (!listingUrl || existingUrls.has(listingUrl)) continue;
+          existingUrls.add(listingUrl);
 
           await sr.entities.BuyOpportunity.create({
             watchlist_item_id: item.id,
@@ -132,7 +135,7 @@ Return ONLY valid JSON matching this schema:
             user_email: item.user_email,
             platform: listing.platform,
             listing_title: listing.listing_title,
-            listing_url: listing.listing_url,
+            listing_url: listingUrl,
             listing_price: listing.listing_price,
             historical_avg: historicalAvg,
             discount_pct: Math.round(discountPct * 10) / 10,

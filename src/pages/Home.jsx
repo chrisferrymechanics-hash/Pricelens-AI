@@ -11,6 +11,11 @@ import CollectiblesCapture from '@/components/CollectiblesCapture';
 import CollectiblesResults from '@/components/CollectiblesResults';
 import BulkUpload from '@/components/BulkUpload';
 
+import { runAI } from '@/lib/ai/runAI';
+import { APPRAISAL_SCHEMA, COLLECTIBLE_SCHEMA } from '@/lib/ai/schemas';
+import { buildAppraisalPrompt, buildKeywordPrompt, buildCollectiblePrompt } from '@/lib/ai/prompts';
+import { normalizeAppraisal, normalizeCollectible } from '@/lib/ai/normalize';
+
 export default function Home() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
@@ -19,6 +24,7 @@ export default function Home() {
   const [userLocation, setUserLocation] = useState(null);
   const [user, setUser] = useState(null);
   const [evaluationCount, setEvaluationCount] = useState(0);
+  const [error, setError] = useState(null);
 
   React.useEffect(() => {
     if (navigator.geolocation) {
@@ -49,79 +55,9 @@ export default function Home() {
     });
   }, []);
 
-  const analyzeWithAI = async (prompt, imageUrl = null) => {
-    const response = await base44.integrations.Core.InvokeLLM({
-      prompt,
-      add_context_from_internet: true,
-      file_urls: imageUrl ? [imageUrl] : undefined,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          item_name: { type: "string" },
-          item_description: { type: "string" },
-          category: { type: "string" },
-          condition_estimate: { type: "string", enum: ["new", "like_new", "good", "fair", "poor"] },
-          condition_score: { type: "number", minimum: 1, maximum: 10 },
-          condition_details: {
-            type: "object",
-            properties: {
-              summary: { type: "string" },
-              defects_found: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    type: { type: "string" },
-                    severity: { type: "string", enum: ["minor", "moderate", "severe"] },
-                    location: { type: "string" },
-                    price_impact: { type: "string" }
-                  }
-                }
-              },
-              wear_level: { type: "string" },
-              functionality_assessment: { type: "string" },
-              cosmetic_rating: { type: "number", minimum: 1, maximum: 10 },
-              completeness: { type: "string" }
-            }
-          },
-          new_price_low: { type: "number" },
-          new_price_high: { type: "number" },
-          secondhand_price_low: { type: "number" },
-          secondhand_price_high: { type: "number" },
-          auction_price_low: { type: "number" },
-          auction_price_high: { type: "number" },
-          buy_recommendations: {
-            type: "array",
-            maxItems: 5,
-            items: {
-              type: "object",
-              properties: {
-                platform: { type: "string" },
-                price_range: { type: "string" },
-                url: { type: "string" },
-                is_local: { type: "boolean" }
-              }
-            }
-          },
-          sell_recommendations: {
-            type: "array",
-            maxItems: 5,
-            items: {
-              type: "object",
-              properties: {
-                platform: { type: "string" },
-                expected_price: { type: "string" },
-                fees: { type: "string" },
-                time_to_sell: { type: "string" },
-                url: { type: "string" },
-                is_local: { type: "boolean" }
-              }
-            }
-          }
-        }
-      }
-    });
-    return response;
+  const analyzeWithAI = async (prompt, imageUrls = []) => {
+    const raw = await runAI({ prompt, schema: APPRAISAL_SCHEMA, fileUrls: imageUrls });
+    return normalizeAppraisal(raw);
   };
 
   const canEvaluate = () => {
@@ -137,54 +73,36 @@ export default function Home() {
       alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
       return;
     }
-    
+
     setIsProcessing(true);
+    setError(null);
     try {
-    const { file_url } = await base44.integrations.Core.UploadFile({ file });
-    
-    const analysisResult = await analyzeWithAI(
-      `You are an expert item appraiser and resale market analyst. Analyse this image thoroughly.
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-STEP 1 — ITEM IDENTIFICATION:
-Identify the exact item: brand, model, variant, year if visible. Be as specific as possible.
+      const analysisResult = await analyzeWithAI(
+        buildAppraisalPrompt({ userLocation }),
+        [file_url]
+      );
 
-STEP 2 — CONDITION ASSESSMENT (examine carefully):
-Look for: scratches, scuffs, dents, cracks, discoloration, stains, fading, worn edges, loose parts, missing accessories, signs of repair or modification, overall cleanliness.
-Score condition 1–10 (10 = mint/perfect, 7 = good used, 5 = fair, 3 = poor but functional, 1 = heavily damaged).
-Document every defect with type, severity, location, and estimated price impact.
+      const finalResult = {
+        ...analysisResult,
+        image_url: file_url
+      };
 
-STEP 3 — MARKET RESEARCH (search the internet for current prices):
-Find REAL current prices for this exact item. Adjust ALL prices downward based on the condition defects observed.
-- New retail price range (from major retailers today)
-- Secondhand/used price range (eBay, Mercari, FB Marketplace — condition-adjusted)
-- Auction price range (eBay auctions, estate sales — condition-adjusted)
+      await base44.entities.PriceEvaluation.create(finalResult);
 
-STEP 4 — BUY & SELL RECOMMENDATIONS:
-TOP 5 platforms to BUY this item — ${userLocation ? `PRIORITISE local stores/marketplaces near coordinates (${userLocation.lat}, ${userLocation.lng}) first, then` : ''} national/online options. Include current price ranges and direct URLs.
-TOP 5 platforms to SELL this item — ${userLocation ? `PRIORITISE local options near coordinates (${userLocation.lat}, ${userLocation.lng}) first, then` : ''} online marketplaces. Include condition-adjusted expected prices, seller fees, typical days-to-sell, and URLs.
+      // Deduct credit if applicable
+      if (user && user.plan_type !== 'premium' && user.credits > 0) {
+        await base44.auth.updateMe({ credits: user.credits - 1 });
+        setUser({ ...user, credits: user.credits - 1 });
+      } else if (user && user.plan_type !== 'premium') {
+        setEvaluationCount(evaluationCount + 1);
+      }
 
-Mark each with is_local: true/false. Prices in USD. Include real, working URLs.`,
-      file_url
-    );
-
-    const finalResult = {
-      ...analysisResult,
-      image_url: file_url
-    };
-
-    await base44.entities.PriceEvaluation.create(finalResult);
-    
-    // Deduct credit if applicable
-    if (user && user.plan_type !== 'premium' && user.credits > 0) {
-      await base44.auth.updateMe({ credits: user.credits - 1 });
-      setUser({ ...user, credits: user.credits - 1 });
-    } else if (user && user.plan_type !== 'premium') {
-      setEvaluationCount(evaluationCount + 1);
-    }
-    
-    setResult(finalResult);
+      setResult(finalResult);
     } catch (err) {
       console.error('Image capture error:', err);
+      setError('Could not complete this appraisal. No credit was used — please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -195,49 +113,33 @@ Mark each with is_local: true/false. Prices in USD. Include real, working URLs.`
       alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
       return;
     }
-    
+
     setIsProcessing(true);
+    setError(null);
     try {
-    const analysisResult = await analyzeWithAI(
-      `You are an expert price researcher and resale market analyst. Search the internet for "${query}" and provide a comprehensive, data-driven pricing report.
+      const analysisResult = await analyzeWithAI(
+        buildKeywordPrompt({ query, userLocation })
+      );
 
-STEP 1 — ITEM IDENTIFICATION:
-Identify the exact product from the search query: full brand, model, variant, year/generation. If ambiguous, use the most common/popular version.
+      const finalResult = {
+        ...analysisResult,
+        search_query: query
+      };
 
-STEP 2 — MARKET PRICES (search right now for real current prices):
-- NEW retail price range: check Amazon, Best Buy, Walmart, manufacturer website, major retailers
-- SECONDHAND/USED price range: check eBay sold listings, Mercari, Facebook Marketplace, Craigslist — provide realistic used price range
-- AUCTION price range: eBay auction results, estate sale platforms
+      await base44.entities.PriceEvaluation.create(finalResult);
 
-STEP 3 — BUY RECOMMENDATIONS (Top 5):
-${userLocation ? `PRIORITISE local stores/marketplaces near coordinates (${userLocation.lat}, ${userLocation.lng}) first, then national/online options.` : 'Include both local marketplace options and major online retailers.'}
-For each: platform name, current price range, direct URL, mark is_local true/false.
+      // Deduct credit if applicable
+      if (user && user.plan_type !== 'premium' && user.credits > 0) {
+        await base44.auth.updateMe({ credits: user.credits - 1 });
+        setUser({ ...user, credits: user.credits - 1 });
+      } else if (user && user.plan_type !== 'premium') {
+        setEvaluationCount(evaluationCount + 1);
+      }
 
-STEP 4 — SELL RECOMMENDATIONS (Top 5):
-${userLocation ? `PRIORITISE local selling options near coordinates (${userLocation.lat}, ${userLocation.lng}) first.` : 'Include local and online selling options.'}
-For each: platform, expected sale price, seller fees, typical days-to-sell, direct URL, mark is_local true/false.
-
-Use real current market data. Prices in USD. Include actual working URLs.`
-    );
-
-    const finalResult = {
-      ...analysisResult,
-      search_query: query
-    };
-
-    await base44.entities.PriceEvaluation.create(finalResult);
-    
-    // Deduct credit if applicable
-    if (user && user.plan_type !== 'premium' && user.credits > 0) {
-      await base44.auth.updateMe({ credits: user.credits - 1 });
-      setUser({ ...user, credits: user.credits - 1 });
-    } else if (user && user.plan_type !== 'premium') {
-      setEvaluationCount(evaluationCount + 1);
-    }
-    
-    setResult(finalResult);
+      setResult(finalResult);
     } catch (err) {
       console.error('Keyword search error:', err);
+      setError('Could not complete this price research. No credit was used — please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -253,217 +155,45 @@ Use real current market data. Prices in USD. Include actual working URLs.`
       alert('You have reached your monthly limit. Upgrade to Premium for unlimited evaluations or buy credits.');
       return;
     }
-    
+
     setIsProcessing(true);
+    setError(null);
     try {
-    // Upload all images
-    const uploadPromises = files.map(file => 
-      base44.integrations.Core.UploadFile({ file })
-    );
-    const uploadResults = await Promise.all(uploadPromises);
-    const fileUrls = uploadResults.map(result => result.file_url);
-    
-    const response = await base44.integrations.Core.InvokeLLM({
-      prompt: `You are a professional collectibles appraiser with expertise in ALL major grading services. Analyze these ${fileUrls.length} images comprehensively.
+      // Upload all images
+      const uploadPromises = files.map(file =>
+        base44.integrations.Core.UploadFile({ file })
+      );
+      const uploadResults = await Promise.all(uploadPromises);
+      const fileUrls = uploadResults.map(result => result.file_url);
 
-    STEP 1: MULTI-ANGLE IMAGE ANALYSIS & CONDITION ASSESSMENT
-    Examine ALL provided images from different angles and CAREFULLY ASSESS CONDITION:
-    - Extract serial numbers, certification codes, unique identifiers
-    - Identify mint marks, artist signatures, autographs
-    - Check for existing grade labels or authentication marks
-    - DETAILED CONDITION EXAMINATION:
-      * Centering and alignment issues
-      * Corner wear (soft, fuzzy, rounded, damaged)
-      * Edge wear (whitening, chipping, roughness)
-      * Surface condition (scratches, print lines, stains, discoloration)
-      * Structural integrity (creases, tears, bends)
-      * Color vibrancy and fading
-      * Gloss/finish quality
-      * Any restoration or alterations detected
-    - Document EVERY visible defect with location and severity
-    - Assess overall wear level and preservation quality
+      const raw = await runAI({
+        prompt: buildCollectiblePrompt({ imageCount: fileUrls.length }),
+        schema: COLLECTIBLE_SCHEMA,
+        fileUrls,
+      });
+      const response = normalizeCollectible(raw);
 
-    STEP 2: IDENTIFY & CATEGORIZE
-    - Exact item name/title
-    - Collectible type (coin, stamp, comic, trading_card, antique, memorabilia)
-    - Manufacturer/publisher/mint
-    - Year, edition, series, variant
-    - Key distinguishing features or errors
+      const finalResult = {
+        ...response,
+        front_image_url: fileUrls[0],
+        back_image_url: fileUrls[1] || null,
+        additional_image_urls: fileUrls.slice(2)
+      };
 
-    STEP 3: CONDITION SCORING (1-10 SCALE)
-    Provide an overall condition score:
-    - 10: Gem Mint (perfect in every way)
-    - 9: Mint (nearly perfect, minimal flaws)
-    - 8: Near Mint-Mint (very sharp with minor imperfections)
-    - 7: Near Mint (sharp but shows slight wear)
-    - 6: Excellent-Mint (light wear visible)
-    - 5: Excellent (moderate wear but structurally sound)
-    - 4: Very Good-Excellent (noticeable wear)
-    - 3-1: Good to Poor (significant damage)
+      await base44.entities.PriceEvaluation.create(finalResult);
 
-    STEP 4: DETERMINE APPROPRIATE GRADING SERVICES
-    Based on the collectible type, identify ALL relevant grading services:
-    - Trading Cards: PSA, BGS (Beckett), SGC, CGC Cards
-    - Coins: PCGS, NGC, ANACS, ICG
-    - Comics: CGC, CBCS
-    - Stamps: PSE, APS
-    - Autographs: PSA/DNA, JSA, BAS
-
-    STEP 5: MULTI-SERVICE GRADING ESTIMATES
-    For EACH applicable grading service, provide:
-    - Service name (PSA, BGS, CGC, PCGS, NGC, etc.)
-    - Grading scale used (PSA 1-10, BGS 1-10 with subgrades, PCGS 1-70, CGC 0.5-10)
-    - Estimated grade based on detailed condition analysis above
-    - Numeric grade value
-    - Subgrades if applicable (BGS: centering, corners, edges, surface)
-    - Specific notes explaining the grade based on observed defects
-
-    STEP 6: DATABASE & MARKET RESEARCH
-    Search PSA CardFacts, BGS Population Report, PCGS CoinFacts, NGC Census, CGC Census, Heritage Auctions, eBay sold listings, COMC, PWCC:
-    - Recent sales with SPECIFIC dates, prices, grades, and grading services
-    - Population data for each grade level
-    - Price trends by grade
-    - Record of sales from last 6 months minimum
-
-    STEP 7: COMPREHENSIVE VALUATION
-    - Ungraded value range (based on condition assessment)
-    - Value range at each major grade level (e.g., PSA 8, PSA 9, PSA 10)
-    - Comparison across different grading services
-    - Historical sales data supporting these valuations
-    - Price impact of specific defects observed
-
-    STEP 8: AUTHENTICITY & RARITY
-    - Authenticity confidence (0-100%)
-    - Rarity assessment with justification
-    - Population reports from grading registries
-    - Key identifiers that affect value
-
-    STEP 9: SPECIALIZED TRADING PLATFORMS
-    List top platforms specific to this collectible type with current prices and URLs.
-
-    Be extremely thorough - use all available online databases and marketplaces.`,
-      add_context_from_internet: true,
-      file_urls: fileUrls,
-      response_json_schema: {
-        type: "object",
-        properties: {
-          item_name: { type: "string" },
-          item_description: { type: "string" },
-          collectible_type: { type: "string", enum: ["coin", "stamp", "comic", "trading_card", "antique", "memorabilia", "other"] },
-          condition_score: { type: "number", minimum: 1, maximum: 10 },
-          condition_details: {
-            type: "object",
-            properties: {
-              summary: { type: "string" },
-              defects_found: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    type: { type: "string" },
-                    severity: { type: "string", enum: ["minor", "moderate", "severe"] },
-                    location: { type: "string" },
-                    price_impact: { type: "string" }
-                  }
-                }
-              },
-              centering: { type: "string" },
-              corners: { type: "string" },
-              edges: { type: "string" },
-              surface: { type: "string" },
-              overall_preservation: { type: "string" }
-            }
-          },
-          serial_number: { type: "string" },
-          mint_mark: { type: "string" },
-          artist_signature: { type: "string" },
-          year: { type: "string" },
-          edition: { type: "string" },
-          rarity: { type: "string", enum: ["common", "uncommon", "rare", "very_rare", "extremely_rare", "legendary"] },
-          rarity_score: { type: "number", minimum: 1, maximum: 10 },
-          key_identifiers: { type: "array", items: { type: "string" } },
-          authenticity: {
-            type: "object",
-            properties: {
-              confidence: { type: "number", minimum: 0, maximum: 100 },
-              notes: { type: "string" }
-            }
-          },
-          grading_estimates: {
-            type: "array",
-            items: {
-              type: "object",
-              properties: {
-                service: { type: "string" },
-                scale: { type: "string" },
-                estimated_grade: { type: "string" },
-                numeric_grade: { type: "number" },
-                subgrades: { type: "object" },
-                notes: { type: "string" }
-              }
-            }
-          },
-          grading_service: { type: "string" },
-          grading_recommendation: { type: "string" },
-          historical_sales: {
-            type: "array",
-            maxItems: 10,
-            items: {
-              type: "object",
-              properties: {
-                date: { type: "string" },
-                price: { type: "number" },
-                grade: { type: "string" },
-                grading_service: { type: "string" },
-                platform: { type: "string" },
-                url: { type: "string" }
-              }
-            }
-          },
-          estimated_value_low: { type: "number" },
-          estimated_value_high: { type: "number" },
-          graded_value_low: { type: "number" },
-          graded_value_high: { type: "number" },
-          value_by_grade: { type: "object" },
-          trading_platforms: {
-            type: "array",
-            maxItems: 5,
-            items: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                price_range: { type: "string" },
-                url: { type: "string" },
-                notes: { type: "string" },
-                is_specialized: { type: "boolean" },
-                is_local: { type: "boolean" }
-              }
-            }
-          }
-        }
+      // Deduct credit if applicable
+      if (user && user.plan_type !== 'premium' && user.credits > 0) {
+        await base44.auth.updateMe({ credits: user.credits - 1 });
+        setUser({ ...user, credits: user.credits - 1 });
+      } else if (user && user.plan_type !== 'premium') {
+        setEvaluationCount(evaluationCount + 1);
       }
-    });
 
-    const finalResult = {
-      ...response,
-      front_image_url: fileUrls[0],
-      back_image_url: fileUrls[1] || null,
-      additional_image_urls: fileUrls.slice(2)
-    };
-
-    await base44.entities.PriceEvaluation.create(finalResult);
-    
-    // Deduct credit if applicable
-    if (user && user.plan_type !== 'premium' && user.credits > 0) {
-      await base44.auth.updateMe({ credits: user.credits - 1 });
-      setUser({ ...user, credits: user.credits - 1 });
-    } else if (user && user.plan_type !== 'premium') {
-      setEvaluationCount(evaluationCount + 1);
-    }
-    
-    setCollectibleResult(finalResult);
+      setCollectibleResult(finalResult);
     } catch (err) {
       console.error('Collectibles capture error:', err);
+      setError('Could not complete this collectible appraisal. No credit was used — please try again.');
     } finally {
       setIsProcessing(false);
     }
@@ -472,7 +202,7 @@ Use real current market data. Prices in USD. Include actual working URLs.`
   return (
     <div className="max-w-lg mx-auto px-4 py-6">
       {/* Header */}
-      <motion.div 
+      <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-8"
@@ -496,6 +226,12 @@ Use real current market data. Prices in USD. Include actual working URLs.`
           )}
           </motion.div>
 
+          {error && (
+            <div className="mb-4 rounded-xl border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+              {error}
+            </div>
+          )}
+
           {/* Main Content */}
         {collectibleResult ? (
           <CollectiblesResults result={collectibleResult} onBack={handleBack} />
@@ -504,29 +240,29 @@ Use real current market data. Prices in USD. Include actual working URLs.`
         ) : (
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="w-full bg-slate-800/50 border border-slate-700 rounded-xl p-1 mb-6">
-              <TabsTrigger 
-                value="camera" 
+              <TabsTrigger
+                value="camera"
                 className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
                 <Camera className="w-4 h-4 mr-1" />
                 Camera
               </TabsTrigger>
-              <TabsTrigger 
-                value="collectibles" 
+              <TabsTrigger
+                value="collectibles"
                 className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
                 <Gem className="w-4 h-4 mr-1" />
                 Collectibles
               </TabsTrigger>
-              <TabsTrigger 
-                value="bulk" 
+              <TabsTrigger
+                value="bulk"
                 className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
                 <Layers className="w-4 h-4 mr-1" />
                 Bulk
               </TabsTrigger>
-              <TabsTrigger 
-                value="search" 
+              <TabsTrigger
+                value="search"
                 className="flex-1 data-[state=active]:bg-slate-700 rounded-lg py-2 text-slate-400 data-[state=active]:text-white text-xs"
               >
                 <Search className="w-4 h-4 mr-1" />

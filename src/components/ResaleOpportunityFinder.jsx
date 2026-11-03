@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { base44 } from '@/api/base44Client';
+import { runAI } from '@/lib/ai/runAI';
+import { GROUNDING_RULES } from '@/lib/ai/prompts';
+import { safeUrl } from '@/lib/ai/grounding';
 import { motion } from 'framer-motion';
 import { TrendingUp, Search, ExternalLink, Wrench, DollarSign, Loader2, ChevronDown, ChevronUp, Package } from 'lucide-react';
 
@@ -15,7 +17,7 @@ export default function ResaleOpportunityFinder({ result }) {
   const findOpportunities = async () => {
     setLoading(true);
     try {
-    const response = await base44.integrations.Core.InvokeLLM({
+    const response = await runAI({
       prompt: `You are an expert resale market analyst. Search the internet RIGHT NOW for "${itemName}" currently listed for sale.
 
 MARKET CONTEXT: The estimated market value for this item is $${valueLow}–$${valueHigh}.
@@ -41,9 +43,10 @@ List 5 specific, practical actions to increase resale value for "${itemName}". F
 - Realistic cost estimate
 - 1–3 exact products/supplies to buy: product name, direct Amazon/eBay URL, price range
 
-Focus on improvements with the best ROI. Be specific — name actual products, not generic categories.`,
-      add_context_from_internet: true,
-      response_json_schema: {
+Focus on improvements with the best ROI. Be specific — name actual products, not generic categories.
+
+${GROUNDING_RULES}`,
+schema: {
         type: "object",
         properties: {
           underpriced_listings: {
@@ -96,7 +99,19 @@ Focus on improvements with the best ROI. Be specific — name actual products, n
         }
       }
     });
-    setData(response);
+    // Drop any listing or product link that isn't a real, valid URL
+    setData({
+      ...response,
+      underpriced_listings: (Array.isArray(response?.underpriced_listings) ? response.underpriced_listings : [])
+        .filter((listing) => safeUrl(listing?.url))
+        .map((listing) => ({ ...listing, url: safeUrl(listing.url) })),
+      improvements: (Array.isArray(response?.improvements) ? response.improvements : []).map((imp) => ({
+        ...imp,
+        supplies: (Array.isArray(imp?.supplies) ? imp.supplies : [])
+          .map((supply) => ({ ...supply, url: safeUrl(supply?.url) }))
+          .filter((supply) => supply.url),
+      })),
+    });
     setExpanded(true);
     } catch (err) {
       console.error('Resale opportunity finder error:', err);

@@ -1,7 +1,32 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Layers, TrendingUp, TrendingDown, ChevronRight, Loader2 } from 'lucide-react';
-import { base44 } from '@/api/base44Client';
+import { runAI } from '@/lib/ai/runAI';
+import { GROUNDING_RULES } from '@/lib/ai/prompts';
+import { normalizeSimilarItems } from '@/lib/ai/normalize';
+
+const SIMILAR_SCHEMA = {
+  type: 'object',
+  required: ['similar_items'],
+  properties: {
+    similar_items: {
+      type: 'array',
+      maxItems: 5,
+      items: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          reason: { type: 'string' },
+          new_price_low: { type: ['number', 'null'] },
+          new_price_high: { type: ['number', 'null'] },
+          used_price_low: { type: ['number', 'null'] },
+          used_price_high: { type: ['number', 'null'] },
+          price_difference: { type: 'string' }
+        }
+      }
+    }
+  }
+};
 
 function SimilarItemCard({ item, index, onSelect }) {
   const avgNewPrice = ((item.new_price_low || 0) + (item.new_price_high || 0)) / 2;
@@ -67,7 +92,8 @@ export default function SimilarItems({ itemName, category, onSelectItem }) {
       
       let response;
       try {
-        response = await base44.integrations.Core.InvokeLLM({
+        response = await runAI({
+        schema: SIMILAR_SCHEMA,
         prompt: `You are a product research expert. Find 4–5 genuinely useful alternatives and comparable items to "${itemName}" (category: ${category || 'general'}).
 
 Search the internet for real, currently-available products with live market prices.
@@ -79,32 +105,12 @@ For each alternative provide:
 - Used/secondhand price range from eBay, Mercari, FB Marketplace
 - How it compares price-wise to the original (e.g. "35% cheaper", "similar price", "15% more expensive")
 
-Prioritise alternatives that buyers of "${itemName}" actually search for. Include at least one budget option and one premium option if relevant. Use real current market data.`,
-        add_context_from_internet: true,
-        response_json_schema: {
+Prioritise alternatives that buyers of "${itemName}" actually search for. Include at least one budget option and one premium option if relevant. Use real current market data.
 
-          type: "object",
-          properties: {
-            similar_items: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
-                  reason: { type: "string" },
-                  new_price_low: { type: "number" },
-                  new_price_high: { type: "number" },
-                  used_price_low: { type: "number" },
-                  used_price_high: { type: "number" },
-                  price_difference: { type: "string" }
-                }
-              }
-            }
-          }
-        }
+${GROUNDING_RULES}`,
       });
 
-        setSimilarItems(response.similar_items || []);
+        setSimilarItems(normalizeSimilarItems(response));
       } catch (err) {
         setError(err);
       }

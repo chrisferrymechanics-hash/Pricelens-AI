@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { invokeStructured, normalizeRange, MARKET_RULES } from '../../shared/aiMarket.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -23,12 +24,13 @@ ${item.item_description ? `Item description: ${item.item_description}` : ''}
 ${item.category ? `Category: ${item.category}` : ''}
 
 Find the current secondhand/used market price range from eBay sold listings, Mercari, Facebook Marketplace and similar platforms.
-Return ONLY the price range as two numbers. Be conservative and accurate. Use USD.`;
+Return ONLY the price range as two numbers. Be conservative and accurate. Use USD.
 
-        const response = await base44.asServiceRole.integrations.Core.InvokeLLM({
+${MARKET_RULES}`;
+
+        const response = await invokeStructured(base44.asServiceRole, {
           prompt,
-          add_context_from_internet: true,
-          response_json_schema: {
+          schema: {
             type: "object",
             properties: {
               value_low: { type: "number", description: "Low end of current market value in USD" },
@@ -39,8 +41,7 @@ Return ONLY the price range as two numbers. Be conservative and accurate. Use US
           }
         });
 
-        const newLow = response.value_low;
-        const newHigh = response.value_high;
+        const [newLow, newHigh] = normalizeRange(response.value_low, response.value_high);
         const oldLow = item.last_known_value_low;
         const oldHigh = item.last_known_value_high;
 

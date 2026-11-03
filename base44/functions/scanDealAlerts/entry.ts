@@ -1,4 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { invokeStructured, isRealUrl, toPrice, MARKET_RULES } from '../../shared/aiMarket.ts';
 
 Deno.serve(async (req) => {
   try {
@@ -31,12 +32,13 @@ For each qualifying deal found, return:
 - Platform/marketplace name
 - Concise reason why this is a strong deal (mention condition, price gap, seller urgency if visible)
 
-Be selective — only include deals where the profit opportunity is clear and real. If genuinely no deals found, return an empty deals array rather than making up listings.`;
+Be selective — only include deals where the profit opportunity is clear and real. If genuinely no deals found, return an empty deals array rather than making up listings.
 
-      const result = await base44.asServiceRole.integrations.Core.InvokeLLM({
+${MARKET_RULES}`;
+
+      const result = await invokeStructured(base44.asServiceRole, {
         prompt,
-        add_context_from_internet: true,
-        response_json_schema: {
+        schema: {
           type: "object",
           properties: {
             deals: {
@@ -58,7 +60,22 @@ Be selective — only include deals where the profit opportunity is clear and re
         }
       });
 
-      const deals = result?.deals || [];
+      // Trust nothing the model didn't back with a real link and a sane price
+      const deals = (result?.deals || [])
+        .map((deal) => {
+          const price = toPrice(deal?.price);
+          const marketValue = toPrice(deal?.market_value);
+          const url = isRealUrl(deal?.url);
+          if (!price || !marketValue || !url || price >= marketValue) return null;
+          return {
+            ...deal,
+            price,
+            market_value: marketValue,
+            url,
+            discount_percent: Math.round(((marketValue - price) / marketValue) * 100),
+          };
+        })
+        .filter(Boolean);
 
       if (deals.length > 0) {
         // Build the email

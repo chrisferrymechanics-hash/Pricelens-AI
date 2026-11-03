@@ -3,6 +3,9 @@ import { Camera, Upload, X, Zap, Sparkles, Tag, DollarSign } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { base44 } from '@/api/base44Client';
+import { runAI } from '@/lib/ai/runAI';
+import { buildQuickIdentifyPrompt } from '@/lib/ai/prompts';
+import { normalizeQuickIdentify } from '@/lib/ai/normalize';
 
 export default function CameraCapture({ onCapture, isProcessing }) {
   const cameraInputRef = useRef(null);
@@ -35,20 +38,22 @@ export default function CameraCapture({ onCapture, isProcessing }) {
     setIsIdentifying(true);
     try {
     const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
-    const result = await base44.integrations.Core.InvokeLLM({
-      prompt: `Look at this image and quickly identify the item. Return just the basic identification — do not do deep market research yet.`,
-      file_urls: [file_url],
-      response_json_schema: {
+    const raw = await runAI({
+      prompt: buildQuickIdentifyPrompt(),
+      fileUrls: [file_url],
+      webSearch: false,
+      schema: {
         type: 'object',
+        required: ['item_name'],
         properties: {
           item_name: { type: 'string' },
           category: { type: 'string' },
-          estimated_value_low: { type: 'number' },
-          estimated_value_high: { type: 'number' },
+          estimated_value_low: { type: ['number', 'null'] },
+          estimated_value_high: { type: ['number', 'null'] },
         }
       }
     });
-    setIdentified({ ...result, _file_url: file_url });
+    setIdentified({ ...normalizeQuickIdentify(raw), _file_url: file_url });
     } catch (err) {
       console.error('Identify error:', err);
     } finally {
