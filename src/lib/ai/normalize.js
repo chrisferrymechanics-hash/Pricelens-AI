@@ -33,6 +33,13 @@ const priceText = (value) => {
   return text.replace(/(\d[\d,]*(?:\.\d+)?)/g, (match) => `$${match}`);
 };
 
+// Fields like mint_mark are optional: "N/A" is not a value, it is an empty field.
+const PLACEHOLDERS = /^(n\/?a|none|unknown|null|not applicable|not available|no|-{1,2}|—)$/i;
+const detailText = (value) => {
+  const text = cleanText(value, '');
+  return PLACEHOLDERS.test(text.trim()) ? '' : text;
+};
+
 const cleanDefects = (value) =>
   asArray(value)
     .map((defect) => ({
@@ -121,6 +128,7 @@ function cleanGradingEstimates(value) {
 }
 
 function cleanHistoricalSales(value) {
+  const seenUrls = new Set();
   return dedupeBy(
     asArray(value).map((sale) => ({
       date: cleanText(sale?.date, ''),
@@ -133,7 +141,14 @@ function cleanHistoricalSales(value) {
     (sale) => `${sale.date}|${sale.price}|${sale.platform}`
   )
     .filter((sale) => sale.price != null)
-    .slice(0, 10);
+    .slice(0, 10)
+    // One link belongs to one sale: a URL reused across several comps is not evidence for any of them.
+    .map((sale) => {
+      if (!sale.url) return sale;
+      if (seenUrls.has(sale.url)) return { ...sale, url: null };
+      seenUrls.add(sale.url);
+      return sale;
+    });
 }
 
 export function normalizeCollectible(raw) {
@@ -150,6 +165,12 @@ export function normalizeCollectible(raw) {
     condition_score: score,
     rarity: data.rarity || 'common',
     rarity_score: clamp(data.rarity_score, 1, 10),
+    serial_number: detailText(data.serial_number),
+    mint_mark: detailText(data.mint_mark),
+    artist_signature: detailText(data.artist_signature),
+    year: detailText(data.year),
+    edition: detailText(data.edition),
+    grading_service: detailText(data.grading_service),
     condition_details: {
       ...(data.condition_details || {}),
       summary: cleanText(data.condition_details?.summary, ''),

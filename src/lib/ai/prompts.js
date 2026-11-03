@@ -13,7 +13,8 @@ GROUNDING CONTRACT — follow every rule, without exception:
 7. Fill every required field. Never return an empty object or null for the whole response.
 8. Distinguish what you observed from what you inferred: state inference as inference.
 9. A link must point at the specific item, or at a search/category page that lists it. Never return a bare marketplace homepage (such as "https://www.ebay.com") — return null instead.
-10. A real market range is tight. If your high price is more than about 1.6x your low, the high belongs to a different variant, bundle or outlier: drop it or narrow the range to genuinely comparable listings.`;
+10. A real market range is tight. If your high price is more than about 1.6x your low, the high belongs to a different variant, bundle or outlier: drop it or narrow the range to genuinely comparable listings. Check every low/high pair against this before you answer.
+11. A link belongs to the one thing it sits next to. Never reuse the same URL across several sales or listings, and never use a certificate lookup page as the source of a sale.`;
 
 const LOCAL_CONTEXT = (userLocation) =>
   userLocation
