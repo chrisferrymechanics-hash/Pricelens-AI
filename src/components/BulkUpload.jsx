@@ -8,11 +8,12 @@ import { Upload, X, Zap, Loader2, CheckCircle, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button';
 import BulkResults from './BulkResults';
 
-export default function BulkUpload({ isProcessing, setIsProcessing }) {
+export default function BulkUpload({ isProcessing, setIsProcessing, canEvaluate, onConsumeQuota }) {
   const fileInputRef = useRef(null);
   const [files, setFiles] = useState([]); // [{file, preview}]
   const [results, setResults] = useState(null);
   const [progress, setProgress] = useState({ current: 0, total: 0 });
+  const [quotaNotice, setQuotaNotice] = useState(null);
 
   const handleFileChange = (e) => {
     const selected = Array.from(e.target.files || []);
@@ -37,14 +38,19 @@ export default function BulkUpload({ isProcessing, setIsProcessing }) {
   const handleAnalyze = async () => {
     if (!files.length) return;
     setIsProcessing(true);
+    setQuotaNotice(null);
     setProgress({ current: 0, total: files.length });
 
     const batchResults = [];
 
     try {
     for (let i = 0; i < files.length; i++) {
+      if (canEvaluate && !canEvaluate()) {
+        setQuotaNotice('You have reached your limit. Upgrade to Premium for unlimited evaluations or buy credits.');
+        break;
+      }
       setProgress({ current: i + 1, total: files.length });
-      const { file_url } = await base44.integrations.Core.UploadFile({ file: files[i].file });
+      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file: files[i].file });
 
       const raw = await runAI({
         prompt: `Analyze this item image. Identify the item, assess its visible condition, and retrieve current market prices with live comps. Return a concise pricing summary.
@@ -81,6 +87,8 @@ ${GROUNDING_RULES}`,
         secondhand_price_low: res.secondhand_price_low,
         secondhand_price_high: res.secondhand_price_high,
       });
+
+      if (onConsumeQuota) await onConsumeQuota();
     }
 
     setResults(batchResults);
@@ -168,6 +176,12 @@ ${GROUNDING_RULES}`,
               transition={{ ease: 'easeOut' }}
             />
           </div>
+        </div>
+      )}
+
+      {quotaNotice && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-sm text-amber-300">
+          {quotaNotice}
         </div>
       )}
 

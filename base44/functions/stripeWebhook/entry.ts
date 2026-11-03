@@ -59,7 +59,8 @@ Deno.serve(async (req) => {
           // Subscription purchase — use plan_type from metadata (pro/premium)
           await base44.asServiceRole.entities.User.update(user.id, {
             plan_type: planType,
-            subscription_id: session.subscription,
+            stripe_subscription_id: session.subscription,
+            stripe_customer_id: session.customer,
             subscription_status: 'active'
           });
           console.log('User upgraded to', planType, ':', userEmail);
@@ -80,7 +81,7 @@ Deno.serve(async (req) => {
         console.log('Subscription cancelled:', subscription.id);
 
         // Find user by subscription_id and downgrade
-        const users = await base44.asServiceRole.entities.User.filter({ subscription_id: subscription.id });
+        const users = await base44.asServiceRole.entities.User.filter({ stripe_subscription_id: subscription.id });
         if (users && users.length > 0) {
           await base44.asServiceRole.entities.User.update(users[0].id, {
             plan_type: 'free',
@@ -97,7 +98,7 @@ Deno.serve(async (req) => {
         const isActive = subscription.status === 'active';
         console.log('Subscription updated:', subscription.id, 'status:', subscription.status);
 
-        const users = await base44.asServiceRole.entities.User.filter({ subscription_id: subscription.id });
+        const users = await base44.asServiceRole.entities.User.filter({ stripe_subscription_id: subscription.id });
         if (users && users.length > 0) {
           const subPlanType = subscription.metadata?.plan_type || 'premium';
           await base44.asServiceRole.entities.User.update(users[0].id, {
@@ -147,7 +148,7 @@ Deno.serve(async (req) => {
 
         let users = [];
         if (subscriptionId) {
-          users = await base44.asServiceRole.entities.User.filter({ subscription_id: subscriptionId });
+          users = await base44.asServiceRole.entities.User.filter({ stripe_subscription_id: subscriptionId });
         }
         if ((!users || users.length === 0) && userEmail) {
           users = await base44.asServiceRole.entities.User.filter({ email: userEmail });

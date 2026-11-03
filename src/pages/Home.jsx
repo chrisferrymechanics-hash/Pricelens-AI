@@ -25,6 +25,10 @@ export default function Home() {
   const [user, setUser] = useState(null);
   const [evaluationCount, setEvaluationCount] = useState(0);
   const [error, setError] = useState(null);
+  // Refs mirror the quota state so a running batch always sees the current balance
+  const userRef = React.useRef(null);
+  const creditsRef = React.useRef(0);
+  const freeUsedRef = React.useRef(0);
 
   React.useEffect(() => {
     if (navigator.geolocation) {
@@ -42,6 +46,8 @@ export default function Home() {
     base44.auth.me().then((currentUser) => {
       if (currentUser) {
         setUser(currentUser);
+        userRef.current = currentUser;
+        creditsRef.current = currentUser.credits || 0;
         // Count evaluations this month
         const now = new Date();
         const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -50,6 +56,7 @@ export default function Home() {
         }).then(evals => {
           const monthlyEvals = evals.filter(e => new Date(e.created_date) >= firstOfMonth);
           setEvaluationCount(monthlyEvals.length);
+          freeUsedRef.current = monthlyEvals.length;
         });
       }
     });
@@ -61,11 +68,26 @@ export default function Home() {
   };
 
   const canEvaluate = () => {
-    if (!user) return false;
-    if (user.plan_type === 'premium') return true;
-    if (user.credits > 0) return true;
-    if (evaluationCount < 4) return true;
-    return false;
+    const current = userRef.current;
+    if (!current) return false;
+    if (current.plan_type === 'premium') return true;
+    if (creditsRef.current > 0) return true;
+    return freeUsedRef.current < 4;
+  };
+
+  // One evaluation used: spend a credit if they have one, otherwise a free monthly slot
+  const consumeQuota = async () => {
+    const current = userRef.current;
+    if (!current || current.plan_type === 'premium') return;
+    if (creditsRef.current > 0) {
+      const next = creditsRef.current - 1;
+      creditsRef.current = next;
+      await base44.auth.updateMe({ credits: next });
+      setUser((prev) => (prev ? { ...prev, credits: next } : prev));
+    } else {
+      freeUsedRef.current += 1;
+      setEvaluationCount(freeUsedRef.current);
+    }
   };
 
   const handleImageCapture = async (file) => {
@@ -77,7 +99,7 @@ export default function Home() {
     setIsProcessing(true);
     setError(null);
     try {
-      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+      const { file_url } = await base44.integrations.Core.UploadPublicFile({ file });
 
       const analysisResult = await analyzeWithAI(
         buildAppraisalPrompt({ userLocation }),
@@ -91,13 +113,7 @@ export default function Home() {
 
       await base44.entities.PriceEvaluation.create(finalResult);
 
-      // Deduct credit if applicable
-      if (user && user.plan_type !== 'premium' && user.credits > 0) {
-        await base44.auth.updateMe({ credits: user.credits - 1 });
-        setUser({ ...user, credits: user.credits - 1 });
-      } else if (user && user.plan_type !== 'premium') {
-        setEvaluationCount(evaluationCount + 1);
-      }
+      await consumeQuota();
 
       setResult(finalResult);
     } catch (err) {
@@ -128,13 +144,7 @@ export default function Home() {
 
       await base44.entities.PriceEvaluation.create(finalResult);
 
-      // Deduct credit if applicable
-      if (user && user.plan_type !== 'premium' && user.credits > 0) {
-        await base44.auth.updateMe({ credits: user.credits - 1 });
-        setUser({ ...user, credits: user.credits - 1 });
-      } else if (user && user.plan_type !== 'premium') {
-        setEvaluationCount(evaluationCount + 1);
-      }
+      await consumeQuota();
 
       setResult(finalResult);
     } catch (err) {
@@ -161,7 +171,7 @@ export default function Home() {
     try {
       // Upload all images
       const uploadPromises = files.map(file =>
-        base44.integrations.Core.UploadFile({ file })
+        base44.integrations.Core.UploadPublicFile({ file })
       );
       const uploadResults = await Promise.all(uploadPromises);
       const fileUrls = uploadResults.map(result => result.file_url);
@@ -182,13 +192,7 @@ export default function Home() {
 
       await base44.entities.PriceEvaluation.create(finalResult);
 
-      // Deduct credit if applicable
-      if (user && user.plan_type !== 'premium' && user.credits > 0) {
-        await base44.auth.updateMe({ credits: user.credits - 1 });
-        setUser({ ...user, credits: user.credits - 1 });
-      } else if (user && user.plan_type !== 'premium') {
-        setEvaluationCount(evaluationCount + 1);
-      }
+      await consumeQuota();
 
       setCollectibleResult(finalResult);
     } catch (err) {
@@ -220,7 +224,7 @@ export default function Home() {
               ) : user.credits > 0 ? (
                 <span>{user.credits} credits remaining</span>
               ) : (
-                <span>{4 - evaluationCount} free evaluations remaining this month</span>
+                <span>{Math.max(0, 4 - evaluationCount)} free evaluations remaining this month</span>
               )}
             </div>
           )}
@@ -279,7 +283,12 @@ export default function Home() {
             </TabsContent>
 
             <TabsContent value="bulk" className="mt-0">
-              <BulkUpload isProcessing={isProcessing} setIsProcessing={setIsProcessing} />
+              <BulkUpload
+                isProcessing={isProcessing}
+                setIsProcessing={setIsProcessing}
+                canEvaluate={canEvaluate}
+                onConsumeQuota={consumeQuota}
+              />
             </TabsContent>
 
             <TabsContent value="search" className="mt-0">

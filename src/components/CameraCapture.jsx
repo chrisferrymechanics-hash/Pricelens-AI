@@ -37,7 +37,7 @@ export default function CameraCapture({ onCapture, isProcessing }) {
     if (!selectedFile) return;
     setIsIdentifying(true);
     try {
-    const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
+    const { file_url } = await base44.integrations.Core.UploadPublicFile({ file: selectedFile });
     const raw = await runAI({
       prompt: buildQuickIdentifyPrompt(),
       fileUrls: [file_url],

@@ -11,6 +11,7 @@ export default function Settings() {
   const [user, setUser] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isOpeningPortal, setIsOpeningPortal] = useState(false);
   const [darkMode, setDarkMode] = useState(true);
   const navigate = useNavigate();
 
@@ -32,6 +33,20 @@ export default function Settings() {
     localStorage.setItem('theme-mode', mode);
     document.documentElement.setAttribute('data-theme', mode);
     document.documentElement.style.colorScheme = mode;
+  };
+
+  const handleManageSubscription = async () => {
+    setIsOpeningPortal(true);
+    try {
+      const response = await base44.functions.invoke('createBillingPortal');
+      const url = response.data?.url;
+      if (!url) throw new Error('No billing portal URL returned');
+      window.location.assign(url);
+    } catch (error) {
+      console.error('Billing portal error:', error);
+      alert('Could not open subscription management. Please try again.');
+      setIsOpeningPortal(false);
+    }
   };
 
   const handleDeleteAccount = async () => {
@@ -134,6 +149,16 @@ export default function Settings() {
                 </Button>
               )}
             </div>
+            {(user.plan_type === 'premium' || user.stripe_subscription_id) && (
+              <Button
+                onClick={handleManageSubscription}
+                disabled={isOpeningPortal}
+                variant="outline"
+                className="mt-4 w-full border-slate-600 text-slate-300 hover:text-white"
+              >
+                {isOpeningPortal ? 'Opening...' : 'Manage Subscription'}
+              </Button>
+            )}
           </div>
         </div>
 

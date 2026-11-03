@@ -23,10 +23,10 @@
     "stripe_subscription_id": {
       "type": "string",
       "description": "Stripe subscription ID for premium users"
+    },
+    "subscription_status": {
+      "type": "string",
+      "description": "Latest Stripe subscription state (active, cancelled, past_due, refunded)"
     }
-  },
-  "required": [
-    "stripe_customer_id",
-    "stripe_subscription_id"
-  ]
+  }
 }
