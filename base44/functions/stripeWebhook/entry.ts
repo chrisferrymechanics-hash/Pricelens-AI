@@ -64,12 +64,13 @@ Deno.serve(async (req) => {
           });
           console.log('User upgraded to', planType, ':', userEmail);
         } else if (session.mode === 'payment') {
-          // Credit pack purchase — add 20 credits
+          // Credit pack purchase — add the credits recorded on the session
+          const creditsGranted = parseInt(session.metadata?.credits_granted || '20', 10);
           const currentCredits = user.credits || 0;
           await base44.asServiceRole.entities.User.update(user.id, {
-            credits: currentCredits + 20
+            credits: currentCredits + creditsGranted
           });
-          console.log('Added 20 credits to:', userEmail, 'new total:', currentCredits + 20);
+          console.log('Added', creditsGranted, 'credits to:', userEmail, 'new total:', currentCredits + creditsGranted);
         }
         break;
       }
@@ -103,6 +104,77 @@ Deno.serve(async (req) => {
             subscription_status: subscription.status,
             plan_type: isActive ? subPlanType : 'free'
           });
+        }
+        break;
+      }
+
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        const fullyRefunded = charge.refunded === true || charge.amount_refunded >= charge.amount;
+
+        if (!fullyRefunded) {
+          console.log('Partial refund — access unchanged. Charge:', charge.id);
+          break;
+        }
+
+        let userEmail = null;
+        let mode = null;
+        let subscriptionId = null;
+        let creditsGranted = 0;
+
+        // Attribute the refund to the original checkout session
+        if (charge.payment_intent) {
+          const sessions = await stripe.checkout.sessions.list({ payment_intent: charge.payment_intent, limit: 1 });
+          const session = sessions.data[0];
+          if (session) {
+            if (session.metadata?.base44_test_checkout === 'true') {
+              console.log('Skipping refund of Base44 test checkout:', session.id);
+              break;
+            }
+            userEmail = session.metadata?.user_email || session.customer_email;
+            mode = session.mode;
+            subscriptionId = session.subscription;
+            creditsGranted = parseInt(session.metadata?.credits_granted || '0', 10);
+          }
+        }
+
+        // Renewal charges have no checkout session — resolve through the invoice
+        if (!mode && charge.invoice) {
+          const invoice = await stripe.invoices.retrieve(charge.invoice);
+          subscriptionId = invoice.subscription;
+          mode = 'subscription';
+        }
+
+        let users = [];
+        if (subscriptionId) {
+          users = await base44.asServiceRole.entities.User.filter({ subscription_id: subscriptionId });
+        }
+        if ((!users || users.length === 0) && userEmail) {
+          users = await base44.asServiceRole.entities.User.filter({ email: userEmail });
+        }
+        if (!users || users.length === 0) {
+          console.error('Refund: no matching user. Charge:', charge.id, 'email:', userEmail);
+          break;
+        }
+        const refundUser = users[0];
+
+        if (mode === 'subscription') {
+          if (subscriptionId) {
+            try {
+              await stripe.subscriptions.cancel(subscriptionId);
+            } catch (err) {
+              console.warn('Could not cancel refunded subscription:', subscriptionId, err.message);
+            }
+          }
+          await base44.asServiceRole.entities.User.update(refundUser.id, {
+            plan_type: 'free',
+            subscription_status: 'refunded'
+          });
+          console.log('Refund revoked subscription access for:', refundUser.email);
+        } else {
+          const remaining = Math.max(0, (refundUser.credits || 0) - creditsGranted);
+          await base44.asServiceRole.entities.User.update(refundUser.id, { credits: remaining });
+          console.log('Refund removed', creditsGranted, 'credits from:', refundUser.email, 'new total:', remaining);
         }
         break;
       }

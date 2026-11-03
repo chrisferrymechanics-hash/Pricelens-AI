@@ -11,10 +11,18 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { priceId, planType } = await req.json();
+    const { priceId } = await req.json();
 
-    if (!priceId) {
-      return Response.json({ error: 'Price ID is required' }, { status: 400 });
+    // Server-owned catalog — the buyer picks a product, never a price or entitlement.
+    const CATALOG = {
+      'price_1Sy3wNIG0oshJ31B9nAoGQiJ': { plan_type: 'premium', credits: 0 },  // Premium Plan $9.99/mo
+      'price_1Sy3wNIG0oshJ31BA58efeTq': { plan_type: 'credits', credits: 20 }, // Credit Pack $4.99
+    };
+
+    const product = CATALOG[priceId];
+    if (!product) {
+      console.error('Unknown or unsellable price requested:', priceId);
+      return Response.json({ error: 'This plan is not available' }, { status: 400 });
     }
 
     // Return URLs must come from the server-set app URL header — never Origin or Host.
@@ -31,7 +39,8 @@ Deno.serve(async (req) => {
     const metadata = {
       base44_app_id: Deno.env.get('BASE44_APP_ID'),
       user_email: user.email,
-      plan_type: planType || 'premium'
+      plan_type: product.plan_type,
+      credits_granted: String(product.credits)
     };
 
     const session = await stripe.checkout.sessions.create({
